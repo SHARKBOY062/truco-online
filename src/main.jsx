@@ -1,0 +1,16 @@
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import AppRouter from './router';
+import { AuthProvider } from './contexts/AuthContext';
+import { WalletProvider } from './contexts/WalletContext';
+import './index.css';
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <AuthProvider>
+      <WalletProvider>
+        <AppRouter />
+      </WalletProvider>
+    </AuthProvider>
+  </React.StrictMode>
+);

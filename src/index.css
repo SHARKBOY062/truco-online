@@ -1,0 +1,274 @@
+/* ------------------------------------------------------ */
+/*                     TAILWIND IMPORT                    */
+/* ------------------------------------------------------ */
+@import "tailwindcss";
+
+/* ------------------------------------------------------ */
+/*                     GLOBAL DEFAULTS                    */
+/* ------------------------------------------------------ */
+html,
+body {
+  margin: 0;
+  padding: 0;
+
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+
+  background-color: #0f131a;
+  color: white;
+  font-family: "Inter", sans-serif;
+
+  overscroll-behavior-x: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@supports (-webkit-touch-callout: none) {
+  input,
+  select,
+  textarea,
+  button {
+    font-size: 16px !important;
+  }
+}
+
+:root {
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+}
+
+/* ------------------------------------------------------ */
+/*                       SCROLLBARS                       */
+/* ------------------------------------------------------ */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 10px;
+}
+
+.custom-scrollbar-horizontal::-webkit-scrollbar {
+  height: 4px;
+}
+.custom-scrollbar-horizontal::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 10px;
+}
+
+/* ------------------------------------------------------ */
+/*                    UNIVERSAL CAROUSEL                  */
+/* ------------------------------------------------------ */
+.carousel {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 10px;
+  scroll-behavior: smooth;
+}
+.carousel::-webkit-scrollbar {
+  display: none;
+}
+.carousel > * {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+/* ------------------------------------------------------ */
+/*                       FADE ANIMATION                   */
+/* ------------------------------------------------------ */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in 0.25s ease-out;
+}
+
+/* ------------------------------------------------------ */
+/*                 CARD 3D + TILT EFFECTS                 */
+/* ------------------------------------------------------ */
+.card-tilt { perspective: 1200px; }
+
+.card-tilt-inner {
+  transition: transform 0.2s ease-out;
+  transform-style: preserve-3d;
+}
+
+.card-3d {
+  transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+  transform-style: preserve-3d;
+}
+
+.card-3d:hover {
+  transform: rotateY(var(--rotateY, 0deg))
+             rotateX(var(--rotateX, 0deg))
+             scale(1.06);
+  box-shadow: 0 15px 40px rgba(0, 255, 140, 0.25);
+}
+
+/* ------------------------------------------------------ */
+/*                    NEON + PARTICLES                    */
+/* ------------------------------------------------------ */
+.card-glow {
+  box-shadow: 0 0 20px rgba(0, 255, 100, 0.18);
+}
+
+.card-particles {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-particles::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    rgba(0, 255, 120, 0.18) 2px,
+    transparent 0
+  );
+  background-size: 16px 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.card-particles:hover::before { opacity: 0.35; }
+
+/* ------------------------------------------------------ */
+/*                     CONFETTI FALL                      */
+/* ------------------------------------------------------ */
+@keyframes confetti-fall {
+  0% { transform: translateY(-100vh) rotate(0deg); }
+  100% { transform: translateY(100vh) rotate(720deg); }
+}
+
+/* ------------------------------------------------------ */
+/*                     SHAKE EFFECT                       */
+/* ------------------------------------------------------ */
+.shake { animation: shake-effect 0.45s ease; }
+
+@keyframes shake-effect {
+  0% { transform: translate(3px, 3px); }
+  20% { transform: translate(-3px, -2px); }
+  40% { transform: translate(4px, -3px); }
+  60% { transform: translate(-4px, 3px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ------------------------------------------------------ */
+/*               CARD DISTRIBUTION ANIMATION              */
+/* ------------------------------------------------------ */
+@keyframes deal-card {
+  0% {
+    transform: translateY(-200px) scale(0.3) rotate(-20deg);
+    opacity: 0;
+  }
+  80% { opacity: 1; }
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+.deal-card { animation: deal-card 0.45s ease forwards; }
+
+/* ------------------------------------------------------ */
+/*                    CARD FLIP ANIMATION                 */
+/* ------------------------------------------------------ */
+.card-flip { perspective: 900px; }
+
+.card-flip-inner {
+  transition: transform 0.45s ease;
+  transform-style: preserve-3d;
+}
+
+.card-flip.flipped .card-flip-inner {
+  transform: rotateY(180deg);
+}
+
+.card-face { backface-visibility: hidden; }
+
+.card-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
+
+/* ------------------------------------------------------ */
+/*                       TURN EFFECT                      */
+/* ------------------------------------------------------ */
+.glow-turn {
+  animation: glow-turn 1s ease-in-out infinite alternate;
+}
+
+@keyframes glow-turn {
+  0% { filter: drop-shadow(0 0 5px rgba(0,255,120,0.2)); }
+  100% { filter: drop-shadow(0 0 20px rgba(0,255,120,0.55)); }
+}
+
+/* ------------------------------------------------------ */
+/*                    TRUCO FLASH EFFECT                  */
+/* ------------------------------------------------------ */
+.truco-flash { animation: truco-flash 0.5s ease-out; }
+
+@keyframes truco-flash {
+  0% { background-color: rgba(0,255,0,0.1); }
+  50% { background-color: rgba(0,255,0,0.35); }
+  100% { background-color: transparent; }
+}
+
+/* ------------------------------------------------------ */
+/*                    CARD PULSE EFFECT                   */
+/* ------------------------------------------------------ */
+@keyframes card-pulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.25;
+    box-shadow: 0 0 10px rgba(0,255,120,0.2);
+  }
+  100% {
+    transform: scale(1.45);
+    opacity: 0;
+    box-shadow: 0 0 40px rgba(0,255,150,0.4);
+  }
+}
+.animate-card-pulse { animation: card-pulse 1s ease-out infinite; }
+
+/* ------------------------------------------------------ */
+/*                    CARD DROP PHYSICS                   */
+/* ------------------------------------------------------ */
+@keyframes card-drop {
+  0% { transform: translate(-50%, -80%) scale(0.5) rotate(-8deg); opacity: 0; }
+  60% { transform: translate(-50%, -48%) scale(1.04); opacity: 1; }
+  80% { transform: translate(-50%, -50%) scale(0.95); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+.animate-card-drop {
+  animation: card-drop 0.5s cubic-bezier(0.16, 0.6, 0.12, 1) forwards;
+}
+
+/* ------------------------------------------------------ */
+/*                GOLD PULSE (BORDA DA MESA)              */
+/* ------------------------------------------------------ */
+@keyframes goldPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px rgba(250, 204, 21, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.9));
+  }
+}
