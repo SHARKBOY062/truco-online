@@ -1,22 +1,67 @@
-export default function ModeSelector({ modes, selected, onChange }) {
+export default function ModeSelector({ modes = [], selected, onChange }) {
   return (
-    // CORREÇÃO: Alterado de grid-cols-3 para grid-cols-2 no mobile por padrão.
-    // Isso garante que dois modos cabem lado a lado sem corte.
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-      {modes.map(mode => {
-        const active = selected === mode.name;
+    <div className="flex gap-3 sm:gap-4 overflow-x-auto custom-scrollbar-horizontal py-2 snap-x snap-mandatory">
+      {modes.map((mode) => {
+        const isActive = selected === mode.name;
+
         return (
-          <div key={mode.name}
+          <button
+            key={mode.name}
+            type="button"
             onClick={() => onChange(mode.name)}
-            className={`
-              rounded-xl overflow-hidden cursor-pointer
-              border-2 transition
-              ${active ? "border-green-500 shadow-lg" : "border-gray-700"}
-            `}
+            className="relative flex-shrink-0 snap-start focus:outline-none group"
           >
-            <img src={mode.img} alt={mode.name}
-              className="w-full h-24 sm:h-32 object-contain p-3" />
-          </div>
+            <div
+              className={`
+                w-[120px] sm:w-[140px] md:w-[150px]
+                rounded-2xl overflow-hidden
+                transition transform
+                bg-black border
+                shadow-[0_14px_40px_rgba(0,0,0,0.9)]
+                ${
+                  isActive
+                    ? "border-[#B90007] shadow-[0_0_22px_rgba(185,0,7,0.9)]"
+                    : "border-[#262626] group-hover:border-[#B90007]"
+                }
+              `}
+            >
+              <div className="relative w-full pb-[115%]">
+                <img
+                  src={mode.img}
+                  alt={mode.name}
+                  className="
+                    absolute inset-0 w-full h-full
+                    object-contain
+                    transition-transform duration-300
+                    group-hover:scale-[1.05]
+                  "
+                  draggable={false}
+                />
+
+                <div
+                  className="
+                    absolute inset-x-1 bottom-1
+                    bg-black/85 rounded-xl
+                    px-2 py-1.5
+                    backdrop-blur-[2px]
+                  "
+                >
+                  <p className="text-[11px] sm:text-xs font-semibold leading-snug truncate text-soft-shadow">
+                    {mode.name}
+                  </p>
+                  {isActive ? (
+                    <p className="text-[10px] text-[#ff9a9a] uppercase tracking-wide text-soft-shadow">
+                      Selecionado
+                    </p>
+                  ) : (
+                    <p className="text-[10px] text-gray-300/85 text-soft-shadow">
+                      Clique para escolher
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </button>
         );
       })}
     </div>

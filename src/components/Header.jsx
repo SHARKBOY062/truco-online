@@ -10,50 +10,59 @@ export default function Header({ onMenuClick }) {
     <header
       className="
         fixed top-0 left-0 w-full z-[999]
-        bg-[#111820] border-b border-gray-800
-        px-3 sm:px-6
+        bg-[#000000]/92 backdrop-blur-xl border-b border-[#1b1b1b]
+        px-3 sm:px-4 md:px-6
         flex items-center justify-between
-        h-[56px]   /* ALTURA FIXA */
+        h-[56px] sm:h-[64px]
       "
       style={{
-        paddingTop: "env(safe-area-inset-top)", 
+        paddingTop: "env(safe-area-inset-top)",
       }}
     >
       {/* ESQUERDA */}
-      <div className="flex items-center gap-3">
-        <button onClick={onMenuClick} className="active:scale-90 transition">
-          <i className="ri-menu-line text-[28px] leading-none text-white"></i>
+      <div className="flex items-center gap-2 sm:gap-3">
+        <button
+          onClick={onMenuClick}
+          className="active:scale-90 transition text-white"
+          aria-label="Abrir menu"
+        >
+          <i className="ri-menu-line text-[26px] sm:text-[28px] leading-none"></i>
         </button>
 
         <Link to="/" className="flex items-center">
-          <img src={logo} alt="Logo" className="h-7 sm:h-8 w-auto" />
+          <img
+            src={logo}
+            alt="Logo Truco Online"
+            className="h-6 sm:h-7 md:h-8 w-auto object-contain"
+          />
         </Link>
       </div>
 
       {/* SEARCH DESKTOP */}
-      <div className="hidden lg:flex flex-1 justify-center px-10 items-center">
+      <div className="hidden lg:flex flex-1 justify-center px-6 xl:px-10 items-center">
         <div className="relative w-full max-w-md">
           <input
             type="text"
             placeholder="Pesquisar mesas, jogadores..."
             className="
-              w-full bg-gray-800 text-white px-4 py-2 rounded-full outline-none
-              border border-gray-700 focus:border-green-500 transition
+              w-full bg-[#050505] text-white px-4 py-1.5 rounded-full outline-none
+              border border-[#262626] focus:border-[#B90007] transition
+              text-sm
             "
           />
-          <i className="ri-search-line absolute right-4 top-2.5 text-gray-400 text-xl"></i>
+          <i className="ri-search-line absolute right-4 top-1.5 text-gray-400 text-lg"></i>
         </div>
       </div>
 
       {/* DIREITA */}
-      <div className="flex items-center gap-2">
-
+      <div className="flex items-center gap-2 sm:gap-3">
         {!isLogged && (
           <Link
             to="/auth/login"
             className="
-              bg-green-500 text-black px-4 py-2 rounded-full
-              font-bold hover:bg-green-400 transition text-sm
+              bg-[#B90007] text-white px-4 py-1.5 rounded-full
+              font-bold hover:bg-[#e01515] transition text-xs sm:text-sm
+              shadow-[0_0_16px_rgba(185,0,7,0.7)]
             "
           >
             Entrar
@@ -63,14 +72,15 @@ export default function Header({ onMenuClick }) {
         {isLogged && (
           <>
             {/* SALDO */}
-            <div className="flex items-center gap-2 bg-gray-800 px-2 py-1 rounded-full">
-              <span className="text-sm font-semibold select-none">
+            <div className="flex items-center gap-1.5 sm:gap-2 bg-[#050505] px-2 sm:px-3 py-1 rounded-full border border-[#242424]">
+              <span className="text-xs sm:text-sm font-semibold select-none">
                 {showBalance ? "R$ 1.280,54" : "••••••"}
               </span>
 
               <button
                 onClick={() => setShowBalance(!showBalance)}
                 className="text-gray-300 hover:text-white transition"
+                aria-label={showBalance ? "Ocultar saldo" : "Mostrar saldo"}
               >
                 {showBalance ? (
                   <i className="ri-eye-off-line text-lg"></i>
@@ -84,8 +94,9 @@ export default function Header({ onMenuClick }) {
             <Link
               to="/wallet/deposit"
               className="
-                sm:hidden bg-green-500 text-black px-3 py-1.5 
-                rounded-full font-semibold text-sm
+                sm:hidden bg-[#B90007] text-white px-3 py-1.5 
+                rounded-full font-semibold text-xs
+                shadow-[0_0_14px_rgba(185,0,7,0.7)]
               "
             >
               Depositar
@@ -94,8 +105,8 @@ export default function Header({ onMenuClick }) {
             <Link
               to="/wallet/withdraw"
               className="
-                sm:hidden bg-gray-700 text-white px-3 py-1.5 
-                rounded-full font-semibold text-sm
+                sm:hidden bg-[#111111] text-white px-3 py-1.5 
+                rounded-full font-semibold text-xs border border-[#2a2a2a]
               "
             >
               Sacar
@@ -105,8 +116,9 @@ export default function Header({ onMenuClick }) {
             <Link
               to="/wallet/deposit"
               className="
-                hidden sm:block bg-green-500 text-black px-4 py-2 rounded-full 
-                font-semibold hover:bg-green-400 transition
+                hidden sm:block bg-[#B90007] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full 
+                font-semibold hover:bg-[#e01515] transition text-xs sm:text-sm
+                shadow-[0_0_14px_rgba(185,0,7,0.7)]
               "
             >
               Depositar
@@ -115,8 +127,9 @@ export default function Header({ onMenuClick }) {
             <Link
               to="/wallet/withdraw"
               className="
-                hidden sm:block bg-gray-700 text-white px-4 py-2 rounded-full 
-                hover:bg-gray-600 transition
+                hidden sm:block bg-[#111111] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full 
+                hover:bg-[#181818] transition text-xs sm:text-sm
+                border border-[#2a2a2a]
               "
             >
               Sacar
@@ -125,8 +138,9 @@ export default function Header({ onMenuClick }) {
             <Link
               to="/wallet/transactions"
               className="
-                hidden md:block bg-gray-700 text-white px-4 py-2 rounded-full 
-                hover:bg-gray-600 transition
+                hidden md:block bg-[#111111] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full 
+                hover:bg-[#181818] transition text-xs sm:text-sm
+                border border-[#2a2a2a]
               "
             >
               Extrato

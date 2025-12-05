@@ -15,7 +15,7 @@ body {
   min-width: 100%;
   max-width: 100%;
 
-  background-color: #0f131a;
+  background-color: #000000; /* fundo 100% preto */
   color: white;
   font-family: "Inter", sans-serif;
 
@@ -23,8 +23,25 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
+/* garante que nada crie scroll horizontal no mobile */
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 * {
   -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+/* mídia nunca estoura a largura do container */
+img,
+video,
+canvas {
+  max-width: 100%;
+  display: block;
 }
 
 @supports (-webkit-touch-callout: none) {
@@ -44,27 +61,38 @@ body {
 /* ------------------------------------------------------ */
 /*                       SCROLLBARS                       */
 /* ------------------------------------------------------ */
-.no-scrollbar::-webkit-scrollbar {
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
-.no-scrollbar {
+.no-scrollbar,
+.scrollbar-hide {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
+/* Scroll vertical customizado */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #555555 #000000;
+}
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #000000;
+}
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #333;
+  background: #555555;
   border-radius: 10px;
 }
 
+/* Scroll horizontal customizado */
 .custom-scrollbar-horizontal::-webkit-scrollbar {
   height: 4px;
 }
 .custom-scrollbar-horizontal::-webkit-scrollbar-thumb {
-  background: #333;
+  background: #555555;
   border-radius: 10px;
 }
 
@@ -92,8 +120,14 @@ body {
 /*                       FADE ANIMATION                   */
 /* ------------------------------------------------------ */
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .animate-fade-in {
   animation: fade-in 0.25s ease-out;
@@ -102,43 +136,40 @@ body {
 /* ------------------------------------------------------ */
 /*                 CARD 3D + TILT EFFECTS                 */
 /* ------------------------------------------------------ */
-.card-tilt { perspective: 1200px; }
-
+.card-tilt {
+  perspective: 1200px;
+}
 .card-tilt-inner {
   transition: transform 0.2s ease-out;
   transform-style: preserve-3d;
 }
-
 .card-3d {
   transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
   transform-style: preserve-3d;
 }
-
 .card-3d:hover {
   transform: rotateY(var(--rotateY, 0deg))
-             rotateX(var(--rotateX, 0deg))
-             scale(1.06);
-  box-shadow: 0 15px 40px rgba(0, 255, 140, 0.25);
+    rotateX(var(--rotateX, 0deg))
+    scale(1.06);
+  box-shadow: 0 15px 40px rgba(185, 0, 7, 0.45);
 }
 
 /* ------------------------------------------------------ */
 /*                    NEON + PARTICLES                    */
 /* ------------------------------------------------------ */
 .card-glow {
-  box-shadow: 0 0 20px rgba(0, 255, 100, 0.18);
+  box-shadow: 0 0 22px rgba(185, 0, 7, 0.45);
 }
-
 .card-particles {
   position: relative;
   overflow: hidden;
 }
-
 .card-particles::before {
   content: "";
   position: absolute;
   inset: 0;
   background-image: radial-gradient(
-    rgba(0, 255, 120, 0.18) 2px,
+    rgba(185, 0, 7, 0.28) 2px,
     transparent 0
   );
   background-size: 16px 16px;
@@ -146,29 +177,47 @@ body {
   pointer-events: none;
   transition: opacity 0.25s ease;
 }
-
-.card-particles:hover::before { opacity: 0.35; }
+.card-particles:hover::before {
+  opacity: 0.4;
+}
 
 /* ------------------------------------------------------ */
 /*                     CONFETTI FALL                      */
 /* ------------------------------------------------------ */
 @keyframes confetti-fall {
-  0% { transform: translateY(-100vh) rotate(0deg); }
-  100% { transform: translateY(100vh) rotate(720deg); }
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+  }
 }
 
 /* ------------------------------------------------------ */
 /*                     SHAKE EFFECT                       */
 /* ------------------------------------------------------ */
-.shake { animation: shake-effect 0.45s ease; }
-
+.shake {
+  animation: shake-effect 0.45s ease;
+}
 @keyframes shake-effect {
-  0% { transform: translate(3px, 3px); }
-  20% { transform: translate(-3px, -2px); }
-  40% { transform: translate(4px, -3px); }
-  60% { transform: translate(-4px, 3px); }
-  80% { transform: translate(2px, -2px); }
-  100% { transform: translate(0, 0); }
+  0% {
+    transform: translate(3px, 3px);
+  }
+  20% {
+    transform: translate(-3px, -2px);
+  }
+  40% {
+    transform: translate(4px, -3px);
+  }
+  60% {
+    transform: translate(-4px, 3px);
+  }
+  80% {
+    transform: translate(2px, -2px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 
 /* ------------------------------------------------------ */
@@ -179,29 +228,33 @@ body {
     transform: translateY(-200px) scale(0.3) rotate(-20deg);
     opacity: 0;
   }
-  80% { opacity: 1; }
+  80% {
+    opacity: 1;
+  }
   100% {
     transform: translateY(0) scale(1) rotate(0deg);
   }
 }
-.deal-card { animation: deal-card 0.45s ease forwards; }
+.deal-card {
+  animation: deal-card 0.45s ease forwards;
+}
 
 /* ------------------------------------------------------ */
 /*                    CARD FLIP ANIMATION                 */
 /* ------------------------------------------------------ */
-.card-flip { perspective: 900px; }
-
+.card-flip {
+  perspective: 900px;
+}
 .card-flip-inner {
   transition: transform 0.45s ease;
   transform-style: preserve-3d;
 }
-
 .card-flip.flipped .card-flip-inner {
   transform: rotateY(180deg);
 }
-
-.card-face { backface-visibility: hidden; }
-
+.card-face {
+  backface-visibility: hidden;
+}
 .card-back {
   position: absolute;
   inset: 0;
@@ -214,21 +267,31 @@ body {
 .glow-turn {
   animation: glow-turn 1s ease-in-out infinite alternate;
 }
-
 @keyframes glow-turn {
-  0% { filter: drop-shadow(0 0 5px rgba(0,255,120,0.2)); }
-  100% { filter: drop-shadow(0 0 20px rgba(0,255,120,0.55)); }
+  0% {
+    filter: drop-shadow(0 0 6px rgba(185, 0, 7, 0.25));
+  }
+  100% {
+    filter: drop-shadow(0 0 20px rgba(185, 0, 7, 0.9));
+  }
 }
 
 /* ------------------------------------------------------ */
 /*                    TRUCO FLASH EFFECT                  */
 /* ------------------------------------------------------ */
-.truco-flash { animation: truco-flash 0.5s ease-out; }
-
+.truco-flash {
+  animation: truco-flash 0.5s ease-out;
+}
 @keyframes truco-flash {
-  0% { background-color: rgba(0,255,0,0.1); }
-  50% { background-color: rgba(0,255,0,0.35); }
-  100% { background-color: transparent; }
+  0% {
+    background-color: rgba(185, 0, 7, 0.12);
+  }
+  50% {
+    background-color: rgba(185, 0, 7, 0.5);
+  }
+  100% {
+    background-color: transparent;
+  }
 }
 
 /* ------------------------------------------------------ */
@@ -238,37 +301,64 @@ body {
   0% {
     transform: scale(0.85);
     opacity: 0.25;
-    box-shadow: 0 0 10px rgba(0,255,120,0.2);
+    box-shadow: 0 0 10px rgba(185, 0, 7, 0.35);
   }
   100% {
     transform: scale(1.45);
     opacity: 0;
-    box-shadow: 0 0 40px rgba(0,255,150,0.4);
+    box-shadow: 0 0 40px rgba(185, 0, 7, 0.6);
   }
 }
-.animate-card-pulse { animation: card-pulse 1s ease-out infinite; }
+.animate-card-pulse {
+  animation: card-pulse 1s ease-out infinite;
+}
 
 /* ------------------------------------------------------ */
 /*                    CARD DROP PHYSICS                   */
 /* ------------------------------------------------------ */
 @keyframes card-drop {
-  0% { transform: translate(-50%, -80%) scale(0.5) rotate(-8deg); opacity: 0; }
-  60% { transform: translate(-50%, -48%) scale(1.04); opacity: 1; }
-  80% { transform: translate(-50%, -50%) scale(0.95); }
-  100% { transform: translate(-50%, -50%) scale(1); }
+  0% {
+    transform: translate(-50%, -80%) scale(0.5) rotate(-8deg);
+    opacity: 0;
+  }
+  60% {
+    transform: translate(-50%, -48%) scale(1.04);
+    opacity: 1;
+  }
+  80% {
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 .animate-card-drop {
   animation: card-drop 0.5s cubic-bezier(0.16, 0.6, 0.12, 1) forwards;
 }
 
 /* ------------------------------------------------------ */
-/*                GOLD PULSE (BORDA DA MESA)              */
+/*                VINHO PULSE (BORDA DA MESA)             */
 /* ------------------------------------------------------ */
-@keyframes goldPulse {
-  0%, 100% {
-    filter: drop-shadow(0 0 2px rgba(250, 204, 21, 0.4));
+@keyframes winePulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 2px rgba(185, 0, 7, 0.6));
   }
   50% {
-    filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.9));
+    filter: drop-shadow(0 0 10px rgba(185, 0, 7, 1));
   }
+}
+.animate-gold-pulse {
+  /* mesmo nome de classe, agora com efeito vinho */
+  animation: winePulse 1.6s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------ */
+/*              SOMBRA SUAVE PARA TEXTOS SOBRE IMG        */
+/* ------------------------------------------------------ */
+.text-soft-shadow {
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.95),
+    0 0 4px rgba(0, 0, 0, 0.9),
+    0 0 8px rgba(0, 0, 0, 0.85);
 }

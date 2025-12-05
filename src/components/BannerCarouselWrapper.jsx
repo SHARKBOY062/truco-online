@@ -1,6 +1,6 @@
 export default function BannerCarouselWrapper({ children }) {
   return (
-    <div className="relative z-0 pointer-events-none">
+    <div className="relative z-0 pointer-events-none bg-transparent">
       {children}
     </div>
   );
