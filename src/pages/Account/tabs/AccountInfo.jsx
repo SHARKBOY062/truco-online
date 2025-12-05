@@ -1,8 +1,8 @@
 // src/pages/account/tabs/AccountInfo.jsx
 import { useState } from "react";
-import SectionCard from "../../../components/SectionCard";
-import InputPremium from "../../../components/inputs/InputPremium";
-import EditButton from "../../../components/inputs/EditButton";
+import SectionCard from "../../../components/account/SectionCard.jsx";
+import InputPremium from "../../../components/account/InputPremium.jsx";
+import EditButton from "../../../components/account/EditButton.jsx";
 
 export default function AccountInfo() {
   const [editing, setEditing] = useState(false);
@@ -19,7 +19,6 @@ export default function AccountInfo() {
   };
 
   const handleSave = () => {
-    // aqui o backend pluga a chamada de atualização do perfil
     console.log("SALVAR DADOS DA CONTA:", form);
     setEditing(false);
     alert("Informações da conta salvas com sucesso!");

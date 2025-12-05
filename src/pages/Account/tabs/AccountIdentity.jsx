@@ -1,9 +1,9 @@
 // src/pages/account/tabs/AccountIdentity.jsx
 import { useState } from "react";
-import SectionCard from "../../../components/SectionCard";
-import InputPremium from "../../../components/inputs/InputPremium";
-import SelectPremium from "../../../components/inputs/SelectPremium";
-import UploadPremium from "../../../components/inputs/UploadPremium";
+import SectionCard from "../../../components/account/SectionCard.jsx";
+import InputPremium from "../../../components/account/InputPremium.jsx";
+import SelectPremium from "../../../components/account/SelectPremium.jsx";
+import UploadPremium from "../../../components/account/UploadPremium.jsx";
 
 const DOC_TYPES = ["RG", "CNH", "Passaporte"];
 
@@ -32,8 +32,6 @@ export default function AccountIdentity({ setIdentityDone }) {
 
     setSaving(true);
     try {
-      // 🔗 AQUI O BACKEND PLUGA:
-      // montar FormData, anexar form + arquivos e enviar para API
       console.log("ENVIAR DOCUMENTO IDENTIDADE:", {
         form,
         frontFile,
@@ -41,7 +39,6 @@ export default function AccountIdentity({ setIdentityDone }) {
         selfieFile,
       });
 
-      // simulando sucesso
       setTimeout(() => {
         setIdentityDone(true);
         alert("Documento de identidade enviado para análise.");
@@ -146,7 +143,6 @@ export default function AccountIdentity({ setIdentityDone }) {
               transition-all duration-200
             "
             onClick={() => {
-              // reset local
               setFrontFile(null);
               setBackFile(null);
               setSelfieFile(null);

@@ -1,9 +1,9 @@
 // src/pages/account/tabs/AccountAddress.jsx
 import { useState } from "react";
-import SectionCard from "../../../components/SectionCard";
-import InputPremium from "../../../components/inputs/InputPremium";
-import SelectPremium from "../../../components/inputs/SelectPremium";
-import UploadPremium from "../../../components/inputs/UploadPremium";
+import SectionCard from "../../../components/account/SectionCard.jsx";
+import InputPremium from "../../../components/account/InputPremium.jsx";
+import SelectPremium from "../../../components/account/SelectPremium.jsx";
+import UploadPremium from "../../../components/account/UploadPremium.jsx";
 
 const ADDRESS_DOC_TYPES = [
   "Conta de Luz",
@@ -49,7 +49,6 @@ export default function AccountAddress({ setAddressDone }) {
 
     setSaving(true);
     try {
-      // 🔗 BACKEND PLUGA AQUI:
       console.log("ENVIAR COMPROVANTE DE ENDEREÇO:", {
         form,
         addressFile,
