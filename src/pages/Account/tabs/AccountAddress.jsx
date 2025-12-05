@@ -1,113 +1,233 @@
+// src/pages/account/tabs/AccountAddress.jsx
 import { useState } from "react";
-import SectionCard from "../../../components/account/SectionCard";
-import UploadPremium from "../../../components/account/UploadPremium";
-import SelectPremium from "../../../components/account/SelectPremium";
-import InputPremium from "../../../components/account/InputPremium";
+import SectionCard from "../../../components/SectionCard";
+import InputPremium from "../../../components/inputs/InputPremium";
+import SelectPremium from "../../../components/inputs/SelectPremium";
+import UploadPremium from "../../../components/inputs/UploadPremium";
 
-const documentTypes = [
+const ADDRESS_DOC_TYPES = [
   "Conta de Luz",
   "Conta de Água",
   "Conta de Internet",
   "Extrato Bancário",
-  "Contrato de Aluguel",
-  "Outros"
+  "Outro comprovante",
 ];
 
-export default function AccountAddress() {
-  const [file, setFile] = useState(null);
-  const [docType, setDocType] = useState("");
-  const [status, setStatus] = useState("pendente"); // pendente, aprovado, rejeitado
-  const [addressExtracted, setAddressExtracted] = useState(null);
+export default function AccountAddress({ setAddressDone }) {
+  const [form, setForm] = useState({
+    street: "",
+    number: "",
+    complement: "",
+    district: "",
+    city: "",
+    state: "",
+    zip: "",
+    country: "Brasil",
+    documentType: "",
+  });
 
-  const handleUpload = (f) => {
-    setFile(f);
+  const [addressFile, setAddressFile] = useState(null);
+  const [saving, setSaving] = useState(false);
 
-    // Simulação de OCR
-    setTimeout(() => {
-      setAddressExtracted({
-        street: "Rua das Flores, 112",
-        city: "Caldas Novas",
-        state: "GO",
-        zip: "75690000",
+  const handleChange = (key, value) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSave = async () => {
+    if (
+      !form.street ||
+      !form.number ||
+      !form.city ||
+      !form.state ||
+      !form.zip ||
+      !form.documentType ||
+      !addressFile
+    ) {
+      alert("Preencha o endereço completo e envie um comprovante.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      // 🔗 BACKEND PLUGA AQUI:
+      console.log("ENVIAR COMPROVANTE DE ENDEREÇO:", {
+        form,
+        addressFile,
       });
 
-      setStatus("pendente");
-    }, 1000);
+      setTimeout(() => {
+        setAddressDone(true);
+        alert("Comprovante de endereço enviado para análise.");
+        setSaving(false);
+      }, 800);
+    } catch (err) {
+      console.error(err);
+      alert("Ocorreu um erro ao enviar o comprovante.");
+      setSaving(false);
+    }
   };
 
   return (
-    <SectionCard title="Comprovante de Endereço">
+    <div className="min-w-0">
+      <SectionCard title="Comprovante de Endereço">
+        <p className="text-[11px] sm:text-xs text-gray-400 mb-5">
+          Informe seu endereço atual e envie um comprovante recente em seu nome
+          (emitido há no máximo 90 dias).
+        </p>
 
-      {/* Tipo de documento */}
-      <SelectPremium
-        label="Tipo do Documento"
-        value={docType}
-        onChange={setDocType}
-        options={documentTypes}
-      />
+        {/* ENDEREÇO */}
+        <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <InputPremium
+            label="Logradouro"
+            value={form.street}
+            onChange={(v) => handleChange("street", v)}
+            icon="ri-road-map-line"
+            placeholder="Rua / Avenida"
+          />
 
-      {/* Upload */}
-      <UploadPremium
-        label="Upload do Documento"
-        file={file}
-        onChange={handleUpload}
-      />
+          <InputPremium
+            label="Número"
+            value={form.number}
+            onChange={(v) => handleChange("number", v)}
+            icon="ri-hashtag"
+          />
 
-      {/* Status */}
-      <div className="mt-6">
-        <p className="text-gray-300 mb-2 text-sm">Status do Documento</p>
+          <InputPremium
+            label="Complemento"
+            value={form.complement}
+            onChange={(v) => handleChange("complement", v)}
+            placeholder="Apartamento, bloco, etc. (opcional)"
+          />
 
-        {status === "pendente" && (
-          <span className="px-4 py-2 rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/40">
-            🔄 Em análise
-          </span>
-        )}
+          <InputPremium
+            label="Bairro"
+            value={form.district}
+            onChange={(v) => handleChange("district", v)}
+          />
 
-        {status === "aprovado" && (
-          <span className="px-4 py-2 rounded-full bg-green-500/20 text-green-400 border border-green-500/40">
-            ✔ Aprovado
-          </span>
-        )}
+          <InputPremium
+            label="Cidade"
+            value={form.city}
+            onChange={(v) => handleChange("city", v)}
+            icon="ri-building-4-line"
+          />
 
-        {status === "rejeitado" && (
-          <div>
-            <span className="px-4 py-2 rounded-full bg-red-500/20 text-red-400 border border-red-500/40">
-              ✖ Rejeitado
-            </span>
+          <InputPremium
+            label="Estado"
+            value={form.state}
+            onChange={(v) => handleChange("state", v)}
+            placeholder="Ex.: SP"
+          />
 
-            <p className="text-red-400 text-sm mt-2">
-              Documento inválido. Envie novamente.
-            </p>
+          <InputPremium
+            label="CEP"
+            value={form.zip}
+            onChange={(v) => handleChange("zip", v)}
+            icon="ri-map-pin-line"
+            placeholder="00000-000"
+          />
 
-            <button
-              className="mt-3 bg-green-500 text-black px-4 py-2 rounded-full hover:bg-green-400 transition"
-              onClick={() => {
-                setFile(null);
-                setStatus("pendente");
-              }}
-            >
-              Reenviar Documento
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Endereço OCR */}
-      {addressExtracted && (
-        <div className="mt-8 p-5 border border-gray-700 rounded-xl bg-[#10151b]">
-          <p className="text-gray-300 font-semibold mb-3">
-            Endereço Detectado
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InputPremium label="Endereço" value={addressExtracted.street} locked />
-            <InputPremium label="Cidade" value={addressExtracted.city} locked />
-            <InputPremium label="Estado" value={addressExtracted.state} locked />
-            <InputPremium label="CEP" value={addressExtracted.zip} locked />
-          </div>
+          <InputPremium
+            label="País"
+            value={form.country}
+            onChange={() => {}}
+            locked
+            icon="ri-flag-line"
+          />
         </div>
-      )}
 
-    </SectionCard>
+        {/* TIPO DE DOCUMENTO + UPLOAD */}
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <SelectPremium
+            label="Tipo de comprovante"
+            value={form.documentType}
+            onChange={(v) => handleChange("documentType", v)}
+            options={ADDRESS_DOC_TYPES}
+            placeholder="Selecione o tipo de documento"
+            helper="O documento deve estar em seu nome ou em nome de um responsável."
+          />
+
+          <UploadPremium
+            label="Comprovante de endereço"
+            description="PDF ou imagem legível do documento."
+            fileName={addressFile?.name}
+            onChange={setAddressFile}
+            accept="image/*,.pdf"
+          />
+        </div>
+
+        {/* ALERTA */}
+        <div className="bg-[#090909] border border-[#262626] rounded-xl px-4 py-3 mb-6 flex items-start gap-3">
+          <i className="ri-information-line text-[#B90007] text-xl mt-0.5" />
+          <p className="text-[11px] sm:text-xs text-gray-400 leading-relaxed">
+            O endereço informado deve corresponder ao comprovante enviado. Caso
+            haja divergência, sua conta poderá exigir nova validação.
+          </p>
+        </div>
+
+        {/* BOTÕES */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-end">
+          <button
+            type="button"
+            className="
+              px-4 sm:px-5 py-2.5
+              rounded-full
+              border border-[#333333]
+              text-xs sm:text-sm text-gray-300
+              bg-[#050505]
+              hover:bg-[#101010]
+              transition-all duration-200
+            "
+            onClick={() => {
+              setForm((prev) => ({
+                ...prev,
+                street: "",
+                number: "",
+                complement: "",
+                district: "",
+                city: "",
+                state: "",
+                zip: "",
+                documentType: "",
+              }));
+              setAddressFile(null);
+            }}
+          >
+            Limpar formulário
+          </button>
+
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className={`
+              inline-flex items-center justify-center gap-2
+              px-5 sm:px-6 py-2.5
+              rounded-full
+              text-xs sm:text-sm font-semibold
+              bg-[#B90007] text-white
+              shadow-[0_0_18px_rgba(185,0,7,0.85)]
+              hover:bg-[#e01515]
+              hover:shadow-[0_0_26px_rgba(185,0,7,1)]
+              transition-all duration-200
+              active:scale-95
+              disabled:opacity-60 disabled:cursor-not-allowed
+            `}
+          >
+            {saving ? (
+              <>
+                <i className="ri-loader-4-line animate-spin text-sm" />
+                Enviando...
+              </>
+            ) : (
+              <>
+                <i className="ri-check-double-line text-sm" />
+                Salvar comprovante
+              </>
+            )}
+          </button>
+        </div>
+      </SectionCard>
+    </div>
   );
 }

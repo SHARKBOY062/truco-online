@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import avatar from "../assets/avatar.png";
 import ComingSoonModal from "../components/Modal/ComingSoonModal";
 
-export default function Sidebar({ open }) {
+export default function Sidebar({ open, onClose }) {
   const [openGeneral, setOpenGeneral] = useState(true);
   const [openCategories, setOpenCategories] = useState(true);
   const [openStakes, setOpenStakes] = useState(true);
@@ -22,82 +22,103 @@ export default function Sidebar({ open }) {
 
   return (
     <>
+      {/* MODAL "EM BREVE" */}
       <ComingSoonModal
         open={showComingSoon}
         onClose={() => setShowComingSoon(false)}
       />
 
+      {/* OVERLAY MOBILE */}
+      <div
+        className={`
+          fixed inset-0 z-30 bg-black/60
+          transition-opacity duration-300
+          ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}
+          lg:hidden
+        `}
+        onClick={onClose}
+      />
+
+      {/* SIDEBAR */}
       <aside
         className={`
           fixed top-0 left-0 h-full z-40
-          backdrop-blur-2xl bg-black/92 border-r border-[#141414]
-          shadow-[8px_0_30px_rgba(0,0,0,0.8)]
+          backdrop-blur-2xl bg-black/90 border-r border-[#0b0e13]
+          shadow-[4px_0_25px_rgba(0,0,0,0.6)]
           transition-all duration-500 ease-in-out
           overflow-hidden
-          ${open ? "translate-x-0 w-80" : "-translate-x-full w-0 pointer-events-none"}
+          ${open
+            ? "translate-x-0 w-72 sm:w-80 lg:w-80"
+            : "-translate-x-full w-0 lg:w-0 pointer-events-none"}
         `}
       >
         <div
           className={`
             h-full overflow-y-auto px-6 pt-24 pb-10 custom-scrollbar
-            transition-opacity duration-500
+            transition-opacity duration-400
             ${open ? "opacity-100" : "opacity-0 pointer-events-none"}
           `}
         >
           {/* PERFIL (quando logado) */}
           {isLogged && (
             <>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 mb-6">
                 <img
                   src={avatar}
-                  className="w-12 h-12 rounded-full border border-[#2a2a2a] shadow-[0_0_18px_rgba(0,0,0,0.9)]"
+                  className="w-12 h-12 rounded-full border border-gray-700 shadow-lg"
+                  alt="Avatar"
                 />
 
                 <div>
                   <p className="font-semibold text-white text-lg">Jogador Pro</p>
                   <p className="text-sm text-gray-400">Nível 12 • Veterano</p>
-                  <div className="mt-2 w-32 h-2 bg-[#111111] rounded-full overflow-hidden">
-                    <div className="h-full bg-[#B90007] w-[65%] shadow-[0_0_10px_rgba(185,0,7,0.9)]" />
+                  <div className="mt-2 w-32 h-2 bg-gray-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-[#B90007] w-[65%] shadow-[0_0_8px_rgba(185,0,7,1)]" />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-[#050505] p-5 rounded-2xl border border-[#1f1f1f] shadow-[0_0_26px_rgba(0,0,0,0.9)] mt-5">
-                <p className="text-gray-500 text-xs uppercase tracking-wide mb-4">
+              <div className="bg-[#050505] p-5 rounded-2xl border border-gray-800 shadow-lg mb-6">
+                <p className="text-gray-400 text-xs uppercase tracking-wide mb-4">
                   Suas Estatísticas
                 </p>
 
-                <div className="grid grid-cols-3 text-center">
+                <div className="grid grid-cols-3 text-center gap-2">
                   <div>
-                    <p className="text-[#FFB4B4] font-bold text-xl">148</p>
+                    <p className="text-red-400 font-bold text-xl">148</p>
                     <p className="text-xs text-gray-400">Jogos</p>
                   </div>
                   <div>
-                    <p className="text-[#FFB4B4] font-bold text-xl">89</p>
+                    <p className="text-red-400 font-bold text-xl">89</p>
                     <p className="text-xs text-gray-400">Vitórias</p>
                   </div>
                   <div>
-                    <p className="text-[#FFB4B4] font-bold text-xl">5</p>
+                    <p className="text-red-400 font-bold text-xl">5</p>
                     <p className="text-xs text-gray-400">Sequência</p>
                   </div>
                 </div>
               </div>
 
-              <div className="w-full h-px bg-[#222222] my-6" />
+              <div className="w-full h-px bg-gray-800/50 mb-6" />
             </>
           )}
 
           {/* GERAL */}
           <button
-            onClick={() => setOpenGeneral(!openGeneral)}
+            onClick={() => setOpenGeneral((s) => !s)}
             className="flex justify-between w-full text-left text-gray-400 mb-2 uppercase text-[11px] tracking-widest font-semibold hover:text-[#B90007] transition"
           >
             Geral
-            <i className={`ri-arrow-down-s-line transition ${openGeneral ? "" : "rotate-180"}`} />
+            <i
+              className={`
+                ri-arrow-down-s-line transition
+                ${openGeneral ? "" : "rotate-180"}
+              `}
+            />
           </button>
 
           {openGeneral && (
-            <ul className="space-y-3 text-[15px] pl-1 font-medium">
+            <ul className="space-y-3 text-[15px] pl-1 font-medium mb-4">
               <Link
                 to="/"
                 className="flex items-center gap-3 hover:text-[#B90007] transition"
@@ -132,19 +153,25 @@ export default function Sidebar({ open }) {
             </ul>
           )}
 
-          <div className="w-full h-px bg-[#222222] my-6" />
+          <div className="w-full h-px bg-gray-800/50 my-4" />
 
-          {/* CATEGORIAS DE TRUCO */}
+          {/* CATEGORIAS */}
           <button
-            onClick={() => setOpenCategories(!openCategories)}
+            onClick={() => setOpenCategories((s) => !s)}
             className="flex justify-between w-full text-left text-gray-400 mb-2 uppercase text-[11px] tracking-widest font-semibold hover:text-[#B90007] transition"
           >
             Categorias de Truco
-            <i className={`ri-arrow-down-s-line transition ${openCategories ? "" : "rotate-180"}`} />
+            <i
+              className={`
+                ri-arrow-down-s-line transition
+                ${openCategories ? "" : "rotate-180"}
+              `}
+            />
           </button>
 
           {openCategories && (
-            <ul className="space-y-3 pl-1 text-[15px] font-medium">
+            <ul className="space-y-3 pl-1 text-[15px] font-medium mb-4">
+              {/* Truco Paulista – rota real */}
               <Link
                 to="/game/truco/paulista"
                 className="flex items-center gap-3 hover:text-[#B90007] cursor-pointer transition"
@@ -171,7 +198,7 @@ export default function Sidebar({ open }) {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-[#B90007]/20 text-[#ffc4c4] border border-[#B90007]/60">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-[#B90007]/20 text-[#ffb0b0] border border-[#B90007]/50">
                       ● {Math.floor(Math.random() * 120 + 40)}
                     </span>
 
@@ -181,8 +208,8 @@ export default function Sidebar({ open }) {
                         ri-star-fill cursor-pointer text-lg transition 
                         ${
                           favorites.includes(item)
-                            ? "text-[#ffc857] scale-110 drop-shadow-[0_0_6px_rgba(255,200,87,0.9)]"
-                            : "text-gray-600 hover:text-[#ffc857]"
+                            ? "text-yellow-400 scale-110 drop-shadow-[0_0_6px_#facc15]"
+                            : "text-gray-600 hover:text-yellow-300"
                         }
                       `}
                     />
@@ -192,15 +219,20 @@ export default function Sidebar({ open }) {
             </ul>
           )}
 
-          <div className="w-full h-px bg-[#222222] my-6" />
+          <div className="w-full h-px bg-gray-800/50 my-4" />
 
           {/* STAKES */}
           <button
-            onClick={() => setOpenStakes(!openStakes)}
+            onClick={() => setOpenStakes((s) => !s)}
             className="flex justify-between w-full text-left text-gray-400 mb-2 uppercase text-[11px] tracking-widest font-semibold hover:text-[#B90007] transition"
           >
             Truco por Aposta
-            <i className={`ri-arrow-down-s-line transition ${openStakes ? "" : "rotate-180"}`} />
+            <i
+              className={`
+                ri-arrow-down-s-line transition
+                ${openStakes ? "" : "rotate-180"}
+              `}
+            />
           </button>
 
           {openStakes && (
@@ -210,9 +242,9 @@ export default function Sidebar({ open }) {
                   key={stake}
                   className="
                     py-2.5 px-3 text-[14px] font-semibold rounded-lg
-                    bg-[#050505] border border-[#262626]
-                    hover:border-[#B90007] hover:text-[#ffb4b4]
-                    hover:bg-[#080808] transition
+                    bg-[#050505] border border-gray-700
+                    hover:border-[#B90007] hover:text-[#ffb0b0] hover:bg-black
+                    transition
                   "
                 >
                   R$ {stake}

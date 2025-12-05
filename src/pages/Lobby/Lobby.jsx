@@ -1,5 +1,4 @@
-// src/pages/Lobby/Lobby.jsx
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Button from "../../components/Button";
@@ -44,8 +43,18 @@ export default function Lobby() {
     { id: 106, mode: "Truco Amazonense", stake: 80, img: amazonenseImg },
   ];
 
-  const goToTrucoPaulista = () => {
-    navigate("/game/truco/paulista");
+  const goToTrucoPaulista = () => navigate("/game/truco/paulista");
+
+  const modesRowRef = useRef(null);
+  const tablesRowRef = useRef(null);
+
+  const scrollRow = (ref, direction = "right") => {
+    const el = ref.current;
+    if (!el) return;
+    const first = el.querySelector("article");
+    const baseWidth = first?.clientWidth || 160;
+    const delta = direction === "left" ? -baseWidth : baseWidth;
+    el.scrollBy({ left: delta, behavior: "smooth" });
   };
 
   const handleCreateTable = () => {
@@ -60,209 +69,257 @@ export default function Lobby() {
   };
 
   return (
-    <main className="min-h-screen bg-black text-white pt-[72px] sm:pt-[80px]">
-      <div className="w-full max-w-[1250px] mx-auto px-3 sm:px-4 md:px-6 overflow-x-hidden animate-fade-in">
-
-        {/* BANNERS */}
-        <section aria-label="Banners promocionais" className="mb-6 sm:mb-8">
-          <BannerCarousel />
-        </section>
+    <div className="min-h-screen bg-black text-white">
+      {/* container central – ainda mais compacto no mobile */}
+      <div
+        className="
+          w-full
+          max-w-[420px] sm:max-w-[720px] lg:max-w-[1200px]
+          mx-auto
+          px-2 sm:px-4 md:px-6
+          overflow-x-hidden
+          animate-fade-in
+        "
+      >
+      {/* BANNER */}
+<section
+  aria-label="Banners promocionais"
+  className="
+    mt-3        /* mobile: já descola bem do header */
+    sm:mt-4     /* tablet: um pouco mais de respiro   */
+    md:mt-6     /* desktop: bem confortável           */
+    mb-5 sm:mb-7
+    w-full max-w-full
+  "
+>
+  <BannerCarousel />
+</section>
 
         {/* MODOS DE JOGO */}
-        <section aria-label="Modos de Jogo" className="mb-8 sm:mb-10">
-          <div className="flex items-baseline justify-between mb-2 sm:mb-3">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
-                <span className="w-1.5 h-6 rounded-full bg-[#B90007] shadow-[0_0_12px_rgba(185,0,7,0.9)]" />
-                Modos de Jogo
+        <section
+          aria-label="Modos de Jogo"
+          className="mb-7 sm:mb-9 w-full max-w-full"
+        >
+          <div className="flex items-baseline justify-between mb-2.5">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
+                <span className="w-1 h-4 rounded-full bg-[#B90007] shadow-[0_0_6px_rgba(185,0,7,0.9)]" />
+                <span className="truncate">Modos de Jogo</span>
               </h2>
-              <p className="mt-1 text-[11px] sm:text-xs text-gray-400">
-                Escolha a variação de truco que você quer jogar agora.
+              <p className="mt-0.5 text-[10px] text-gray-400">
+                Escolha a variação que você quer jogar.
               </p>
             </div>
-
-            <span className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wide">
+            <span className="hidden sm:block text-[10px] text-gray-500">
               Arraste para o lado
             </span>
           </div>
 
-          <div className="flex gap-3 sm:gap-4 overflow-x-auto custom-scrollbar-horizontal py-2 snap-x snap-mandatory">
-            {trucoModes.map((m) => (
-              <article
-                key={m.name}
-                className="relative flex-shrink-0 snap-start group"
-              >
-                <div className="w-[140px] sm:w-[170px] md:w-[200px]">
-                  <div className="relative w-full pb-[140%] rounded-2xl overflow-hidden card-particles">
-                    {/* CARD BASE */}
-                    <div
-                      className="
-                        absolute inset-0 rounded-2xl
-                        bg-gradient-to-b from-[#111111] via-[#050505] to-black
-                        card-glow
-                        transition-transform duration-300
-                        group-hover:-translate-y-1 group-hover:scale-[1.02]
-                        group-hover:shadow-[0_22px_55px_rgba(0,0,0,1)]
-                      "
-                    >
+          <div className="relative w-full max-w-full">
+            {/* setas só tablet/desktop */}
+            <button
+              type="button"
+              className="
+                hidden md:flex items-center justify-center
+                absolute left-0 top-1/2 -translate-y-1/2 z-10
+                w-7 h-7 rounded-full bg-black/80 border border-white/10
+                hover:border-[#B90007] hover:bg-black
+              "
+              onClick={() => scrollRow(modesRowRef, "left")}
+              aria-label="Anterior"
+            >
+              <i className="ri-arrow-left-s-line" />
+            </button>
+
+            <button
+              type="button"
+              className="
+                hidden md:flex items-center justify-center
+                absolute right-0 top-1/2 -translate-y-1/2 z-10
+                w-7 h-7 rounded-full bg-black/80 border border-white/10
+                hover:border-[#B90007] hover:bg-black
+              "
+              onClick={() => scrollRow(modesRowRef, "right")}
+              aria-label="Próximo"
+            >
+              <i className="ri-arrow-right-s-line" />
+            </button>
+
+            <div
+              ref={modesRowRef}
+              className="
+                flex gap-2.5 sm:gap-3.5
+                overflow-x-auto scrollbar-hide custom-scrollbar-horizontal
+                py-1
+                w-full max-w-full
+              "
+            >
+              {trucoModes.map((m) => (
+                <article key={m.name} className="flex-shrink-0">
+                  <div className="w-[100px] sm:w-[135px] md:w-[165px]">
+                    <div className="relative w-full h-28 sm:h-36 md:h-44 rounded-2xl overflow-hidden bg-[#050505]">
                       <img
                         src={m.img}
                         alt={m.name}
-                        className="
-                          w-full h-full object-cover rounded-2xl
-                          transition-transform duration-300
-                          group-hover:scale-[1.05]
-                        "
+                        className="w-full h-full object-cover rounded-2xl"
                         draggable={false}
                       />
 
                       <div
-                        className="
-                          absolute inset-0 rounded-2xl border border-white/5
-                          group-hover:border-[#B90007]/85
-                          transition-colors duration-300
-                        "
+                        className={`
+                          absolute inset-0 rounded-2xl border
+                          ${
+                            selectedMode === m.name
+                              ? "border-[#B90007]/90 shadow-[0_0_8px_rgba(185,0,7,0.9)]"
+                              : "border-white/5 hover:border-[#B90007]/80"
+                          }
+                          transition-colors duration-200
+                        `}
                       />
-                    </div>
 
-                    {/* HOVER DESKTOP - BOTÃO CENTRO */}
-                    <button
-                      type="button"
-                      className="
-                        hidden sm:flex absolute inset-0 items-center justify-center
-                        opacity-0 group-hover:opacity-100 transition-opacity duration-300
-                        bg-black/45 rounded-2xl backdrop-blur-[3px]
-                      "
-                      onClick={goToTrucoPaulista}
-                    >
-                      <Button
-                        size="sm"
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-2 py-1">
+                        <p className="text-[9px] sm:text-[10px] font-semibold text-center text-soft-shadow">
+                          {m.name}
+                        </p>
+                      </div>
+
+                      {/* mobile: card inteiro clicável */}
+                      <button
+                        type="button"
+                        className="sm:hidden absolute inset-0"
+                        onClick={goToTrucoPaulista}
+                        aria-label={`Entrar em ${m.name}`}
+                      />
+
+                      {/* desktop: botão no hover */}
+                      <button
+                        type="button"
                         className="
-                          !bg-[#B90007]
-                          !shadow-[0_0_20px_rgba(185,0,7,1)]
-                          border border-[#ff8080]/70
+                          hidden sm:flex absolute inset-0 items-center justify-center
+                          opacity-0 hover:opacity-100 transition-opacity duration-200
+                          bg-black/35
                         "
+                        onClick={goToTrucoPaulista}
                       >
-                        Jogar Agora
-                      </Button>
-                    </button>
-
-                    {/* MOBILE - CARD INTEIRO CLICÁVEL */}
-                    <button
-                      type="button"
-                      className="sm:hidden absolute inset-0"
-                      onClick={goToTrucoPaulista}
-                      aria-label={`Entrar em ${m.name}`}
-                    />
+                        <Button
+                          size="xs"
+                          className="!bg-[#B90007] !px-3 !py-1 text-[10px]"
+                        >
+                          Jogar
+                        </Button>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              ))}
+            </div>
           </div>
         </section>
 
         {/* MESAS DISPONÍVEIS */}
-        <section aria-label="Mesas Disponíveis" className="mb-8 sm:mb-10">
-          <div className="flex items-baseline justify-between mb-2 sm:mb-3">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
-                <span className="w-1.5 h-6 rounded-full bg-[#B90007] shadow-[0_0_12px_rgba(185,0,7,0.9)]" />
-                Mesas Disponíveis
+        <section
+          aria-label="Mesas Disponíveis"
+          className="mb-7 sm:mb-9 w-full max-w-full"
+        >
+          <div className="flex items-baseline justify-between mb-2.5">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
+                <span className="w-1 h-4 rounded-full bg-[#B90007] shadow-[0_0_6px_rgba(185,0,7,0.9)]" />
+                <span className="truncate">Mesas Disponíveis</span>
               </h2>
-              <p className="mt-1 text-[11px] sm:text-xs text-gray-400">
-                Entre direto em uma mesa pública com aposta definida.
+              <p className="mt-0.5 text-[10px] text-gray-400">
+                Encontre uma mesa pública e entre em segundos.
               </p>
             </div>
-
-            <span className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wide">
+            <span className="hidden sm:block text-[10px] text-gray-500">
               Arraste para o lado
             </span>
           </div>
 
-          <div className="flex gap-3 sm:gap-4 overflow-x-auto custom-scrollbar-horizontal py-2 snap-x snap-mandatory">
-            {exampleTables.map((t) => (
-              <article
-                key={t.id}
-                className="relative flex-shrink-0 snap-start group"
-              >
-                <div className="w-[150px] sm:w-[180px] md:w-[210px]">
-                  <div className="relative w-full pb-[150%] rounded-2xl overflow-hidden card-particles">
-                    {/* IMAGEM DA MESA */}
-                    <img
-                      src={t.img}
-                      alt={t.mode}
-                      className="
-                        absolute inset-0 w-full h-full
-                        object-cover rounded-2xl
-                        shadow-[0_10px_30px_rgba(0,0,0,0.95)]
-                        transition-transform duration-300
-                        group-hover:scale-[1.05] group-hover:-translate-y-1
-                      "
-                      draggable={false}
-                    />
+          <div className="relative w-full max-w-full">
+            <button
+              type="button"
+              className="
+                hidden md:flex items-center justify-center
+                absolute left-0 top-1/2 -translate-y-1/2 z-10
+                w-7 h-7 rounded-full bg-black/80 border border-white/10
+                hover:border-[#B90007] hover:bg-black
+              "
+              onClick={() => scrollRow(tablesRowRef, "left")}
+              aria-label="Anterior"
+            >
+              <i className="ri-arrow-left-s-line" />
+            </button>
 
-                    {/* OVERLAY GRADIENT + INFO */}
-                    <div
-                      className="
-                        absolute inset-x-0 bottom-0 p-2 sm:p-3
-                        bg-gradient-to-t from-black/96 via-black/80 to-transparent
-                        rounded-b-2xl
-                        flex flex-col gap-1
-                        backdrop-blur-[2px]
-                      "
-                    >
-                      {/* sombra de base atrás do texto */}
-                      <div className="absolute inset-x-1 bottom-1 top-auto h-16 rounded-xl bg-black/70 blur-[3px]" />
+            <button
+              type="button"
+              className="
+                hidden md:flex items-center justify-center
+                absolute right-0 top-1/2 -translate-y-1/2 z-10
+                w-7 h-7 rounded-full bg-black/80 border border-white/10
+                hover:border-[#B90007] hover:bg-black
+              "
+              onClick={() => scrollRow(tablesRowRef, "right")}
+              aria-label="Próximo"
+            >
+              <i className="ri-arrow-right-s-line" />
+            </button>
 
-                      <div className="relative flex flex-col gap-0.5">
-                        <p className="font-bold text-xs sm:text-sm leading-tight text-soft-shadow text-white">
+            <div
+              ref={tablesRowRef}
+              className="
+                flex gap-2.5 sm:gap-3.5
+                overflow-x-auto scrollbar-hide custom-scrollbar-horizontal
+                py-1
+                w-full max-w-full
+              "
+            >
+              {exampleTables.map((t) => (
+                <article key={t.id} className="flex-shrink-0">
+                  <div className="w-[110px] sm:w-[145px] md:w-[175px]">
+                    <div className="relative w-full h-30 sm:h-38 md:h-46 rounded-2xl overflow-hidden bg-[#050505]">
+                      <img
+                        src={t.img}
+                        alt={t.mode}
+                        className="absolute inset-0 w-full h-full object-cover rounded-2xl"
+                        draggable={false}
+                      />
+
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-2.5 py-1.5 rounded-b-2xl">
+                        <p className="font-bold text-[10px] sm:text-[11px] leading-tight text-soft-shadow">
                           Mesa #{t.id}
                         </p>
-                        <p className="text-[11px] sm:text-xs text-gray-100 truncate text-soft-shadow">
+                        <p className="text-[9px] sm:text-[10px] text-gray-200 truncate text-soft-shadow">
                           {t.mode}
                         </p>
-                        <p className="text-[11px] sm:text-xs text-gray-100 text-soft-shadow">
-                          Stake:{" "}
-                          <span className="font-semibold">R$ {t.stake}</span>
+                        <p className="text-[9px] sm:text-[10px] text-gray-200 text-soft-shadow">
+                          Stake: <span className="font-semibold">R$ {t.stake}</span>
                         </p>
 
-                        {/* Desktop: botão visível */}
                         <div className="hidden sm:block mt-1">
                           <Button
-                            size="sm"
-                            className="
-                              w-full
-                              !bg-[#B90007]
-                              !shadow-[0_0_16px_rgba(185,0,7,0.9)]
-                            "
+                            size="xs"
+                            className="w-full !bg-[#B90007] text-[10px]"
                             onClick={goToTrucoPaulista}
                           >
                             Entrar
                           </Button>
                         </div>
                       </div>
+
+                      <button
+                        type="button"
+                        className="sm:hidden absolute inset-0"
+                        onClick={goToTrucoPaulista}
+                        aria-label={`Entrar na mesa ${t.id}`}
+                      />
+
+                      <div className="absolute inset-0 rounded-2xl border border-white/5 hover:border-[#B90007]/80 transition-colors" />
                     </div>
-
-                    {/* Borda neon leve */}
-                    <div
-                      className="
-                        absolute inset-0 rounded-2xl border border-white/5
-                        group-hover:border-[#B90007]/85
-                        transition-colors duration-300
-                      "
-                    />
-
-                    {/* Mobile - card inteiro clica */}
-                    <button
-                      type="button"
-                      className="sm:hidden absolute inset-0"
-                      onClick={goToTrucoPaulista}
-                      aria-label={`Entrar na mesa ${t.id}`}
-                    />
                   </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -270,47 +327,42 @@ export default function Lobby() {
         <section
           aria-label="Criar Aposta"
           className="
-            relative mb-20
-            rounded-2xl border border-[#1f1f1f]
+            relative mb-14 w-full max-w-full
+            rounded-2xl border border-[#262626]
             bg-gradient-to-b from-black via-[#050505] to-black
-            shadow-[0_24px_70px_rgba(0,0,0,1)]
+            shadow-[0_14px_40px_rgba(0,0,0,0.9)]
             overflow-hidden
           "
         >
           <div className="pointer-events-none absolute inset-0 rounded-2xl border border-white/5" />
 
-          <div className="relative p-4 sm:p-6 md:p-7 space-y-6 sm:space-y-8">
+          <div className="relative p-3.5 sm:p-5 space-y-5">
             <div>
-              <h2 className="text-xl sm:text-2xl font-semibold flex items-center gap-2">
-                <span className="w-1.5 h-6 rounded-full bg-[#B90007] animate-gold-pulse" />
+              <h2 className="text-base sm:text-lg font-semibold flex items-center gap-2">
+                <span className="w-1 h-4 rounded-full bg-[#B90007] animate-gold-pulse" />
                 Criar Aposta
               </h2>
-              <p className="mt-1 text-[11px] sm:text-xs text-gray-400">
-                Configure uma mesa privada escolhendo aposta e estilo de truco.
+              <p className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">
+                Configure uma mesa privada escolhendo stake e estilo de truco.
               </p>
             </div>
 
-            {/* BLOCO CONVITE */}
-            <div className="bg-black/90 border border-[#262626] p-4 sm:p-5 rounded-xl shadow-[0_12px_40px_rgba(0,0,0,1)]">
-              <h3 className="text-base sm:text-lg font-bold mb-1">
+            <div className="bg-black/90 border border-[#333] p-3.5 sm:p-4 rounded-xl">
+              <h3 className="text-[12px] sm:text-sm font-bold mb-1">
                 Convide amigos para jogar!
               </h3>
-              <p className="text-gray-400 text-xs sm:text-sm mb-4">
+              <p className="text-gray-400 text-[10px] sm:text-[11px] mb-3">
                 Gere um link exclusivo para convidar seus amigos e iniciar uma
-                mesa privada com o estilo de truco que você escolher.
+                mesa privada.
               </p>
-              <Button
-                size="md"
-                className="w-full !bg-[#B90007]"
-              >
+              <Button size="sm" className="w-full !bg-[#B90007] text-[11px]">
                 Gerar Link de Convite
               </Button>
             </div>
 
-            {/* STAKE + MODO */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
-                <p className="text-gray-300 mb-2 text-sm sm:text-lg">
+                <p className="text-gray-300 mb-1.5 text-[12px] sm:text-sm">
                   Valor do Stake
                 </p>
                 <StakeSelector
@@ -321,10 +373,9 @@ export default function Lobby() {
               </div>
 
               <div>
-                <p className="text-gray-300 mb-2 text-sm sm:text-lg">
+                <p className="text-gray-300 mb-1.5 text-[12px] sm:text-sm">
                   Estilo de Truco
                 </p>
-
                 <ModeSelector
                   modes={trucoModes}
                   selected={selectedMode}
@@ -333,19 +384,16 @@ export default function Lobby() {
               </div>
             </div>
 
-            {/* BOTÃO CRIAR MESA */}
-            <div className="pt-2">
-              <Button
-                size="lg"
-                className="w-full !bg-[#B90007]"
-                onClick={handleCreateTable}
-              >
-                Criar Mesa
-              </Button>
-            </div>
+            <Button
+              size="md"
+              className="w-full !bg-[#B90007] text-[12px] sm:text-sm"
+              onClick={handleCreateTable}
+            >
+              Criar Mesa
+            </Button>
           </div>
         </section>
       </div>
-    </main>
+    </div>
   );
 }

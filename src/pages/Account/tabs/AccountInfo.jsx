@@ -1,216 +1,99 @@
+// src/pages/account/tabs/AccountInfo.jsx
 import { useState } from "react";
-import SectionCard from "../../../components/account/SectionCard";
-import InputPremium from "../../../components/account/InputPremium";
-import SelectPremium from "../../../components/account/SelectPremium";
-
-import { states } from "../data/states";
-import { countries } from "../data/countries";
-import getCepData from "../helpers/cep";
+import SectionCard from "../../../components/SectionCard";
+import InputPremium from "../../../components/inputs/InputPremium";
+import EditButton from "../../../components/inputs/EditButton";
 
 export default function AccountInfo() {
+  const [editing, setEditing] = useState(false);
+
   const [form, setForm] = useState({
-    displayName: "PrósperoSatisfeito",
-    email: "gamercaju.ex@gmail.com",
-    phone: "+5564992251069",
-    password: "********",
-    firstName: "peixoto",
-    lastName: "peixoto",
-    cpf: "701.502.321-01",
-    birthYear: "2003",
-    birthMonth: "Dez",
-    birthDay: "26",
-    nationality: "",
-    country: "Brasil",
-    gender: "",
-    state: "Goiás",
-    address: "av coronel",
-    city: "Caldas Novas",
-    zip: "75696016",
+    name: "Jogador Pro",
+    email: "jogador@example.com",
+    phone: "+55 (11) 99999-9999",
+    birthdate: "1995-01-01",
   });
 
-  const update = (field, value) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
+  const handleChange = (key, value) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  // CEP Auto-preenchimento
-  const handleCep = async (cep) => {
-    update("zip", cep);
-
-    if (cep.length === 8) {
-      const result = await getCepData(cep);
-
-      if (result) {
-        update("state", result.state);
-        update("city", result.city);
-        update("address", result.street);
-      }
-    }
+  const handleSave = () => {
+    // aqui o backend pluga a chamada de atualização do perfil
+    console.log("SALVAR DADOS DA CONTA:", form);
+    setEditing(false);
+    alert("Informações da conta salvas com sucesso!");
   };
 
   return (
-    <>
-      {/* ===================== INFORMAÇÕES DA CONTA ===================== */}
+    <div className="min-w-0">
       <SectionCard title="Informações da Conta">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <p className="text-[11px] sm:text-xs text-gray-400 max-w-md">
+            Mantenha seus dados pessoais sempre atualizados para garantir a
+            segurança da sua conta e facilitar saques e depósitos.
+          </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
-          {/* Nome de Exibição */}
-          <InputPremium
-            label="Nome de Exibição"
-            value={form.displayName}
-            onChange={(v) => update("displayName", v)}
-          />
-
-          {/* Email (bloqueado) */}
-          <InputPremium
-            label="Endereço de Email"
-            value={form.email}
-            locked={true}
-          />
-
+          {!editing ? (
+            <EditButton onClick={() => setEditing(true)} />
+          ) : (
+            <button
+              onClick={handleSave}
+              className="
+                inline-flex items-center gap-2
+                px-3.5 py-1.5
+                rounded-full
+                bg-[#B90007]
+                text-white text-xs sm:text-sm font-semibold
+                shadow-[0_0_18px_rgba(185,0,7,0.85)]
+                hover:bg-[#e01515]
+                hover:shadow-[0_0_26px_rgba(185,0,7,1)]
+                transition-all duration-200
+                active:scale-95
+              "
+            >
+              <i className="ri-save-3-line text-sm" />
+              Salvar alterações
+            </button>
+          )}
         </div>
 
-        {/* Senha + Telefone */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
+          <InputPremium
+            label="Nome completo"
+            value={form.name}
+            onChange={(v) => handleChange("name", v)}
+            locked={!editing}
+            icon="ri-user-line"
+          />
 
           <InputPremium
-            label="Senha Atual"
-            type="password"
-            value={form.password}
-            locked={true}
+            label="E-mail"
+            value={form.email}
+            onChange={(v) => handleChange("email", v)}
+            locked={!editing}
+            icon="ri-mail-line"
+            type="email"
           />
 
           <InputPremium
             label="Telefone"
             value={form.phone}
-            locked={true}
+            onChange={(v) => handleChange("phone", v)}
+            locked={!editing}
+            icon="ri-phone-line"
           />
 
+          <InputPremium
+            label="Data de Nascimento"
+            value={form.birthdate}
+            onChange={(v) => handleChange("birthdate", v)}
+            locked={!editing}
+            type="date"
+            icon="ri-calendar-event-line"
+          />
         </div>
       </SectionCard>
-
-      {/* ===================== DADOS PESSOAIS ===================== */}
-      <SectionCard>
-
-        {/* Nome */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <InputPremium
-            label="Primeiro Nome"
-            value={form.firstName}
-            onChange={(v) => update("firstName", v)}
-          />
-
-          <InputPremium
-            label="Último Nome"
-            value={form.lastName}
-            onChange={(v) => update("lastName", v)}
-          />
-        </div>
-
-        {/* CPF + Data de nascimento */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
-          <InputPremium
-            label="CPF"
-            value={form.cpf}
-            locked={true}
-          />
-
-          <div>
-            <p className="text-gray-400 mb-1 text-sm">Data de Nascimento</p>
-            <div className="grid grid-cols-3 gap-3">
-              <SelectPremium
-                value={form.birthYear}
-                onChange={(v) => update("birthYear", v)}
-                options={Array.from({ length: 80 }, (_, i) => 1940 + i)}
-              />
-
-              <SelectPremium
-                value={form.birthMonth}
-                onChange={(v) => update("birthMonth", v)}
-                options={[
-                  "Jan","Fev","Mar","Abr","Mai","Jun",
-                  "Jul","Ago","Set","Out","Nov","Dez"
-                ]}
-              />
-
-              <SelectPremium
-                value={form.birthDay}
-                onChange={(v) => update("birthDay", v)}
-                options={Array.from({ length: 31 }, (_, i) => i + 1)}
-              />
-            </div>
-          </div>
-
-        </div>
-
-        {/* Nacionalidade + País */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
-          <SelectPremium
-            label="Nacionalidade"
-            value={form.nationality}
-            onChange={(v) => update("nationality", v)}
-            options={countries}
-          />
-
-          <SelectPremium
-            label="País"
-            value={form.country}
-            onChange={(v) => update("country", v)}
-            options={["Brasil"]}
-          />
-
-        </div>
-
-        {/* Gênero + Estado */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-          <SelectPremium
-            label="Gênero"
-            value={form.gender}
-            onChange={(v) => update("gender", v)}
-            options={["Masculino", "Feminino", "Outro"]}
-          />
-
-          <SelectPremium
-            label="Estado"
-            value={form.state}
-            onChange={(v) => update("state", v)}
-            options={states}
-          />
-
-        </div>
-
-        {/* Endereço */}
-        <InputPremium
-          label="Endereço"
-          value={form.address}
-          onChange={(v) => update("address", v)}
-        />
-
-        {/* Cidade + CEP */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <InputPremium
-            label="Cidade"
-            value={form.city}
-            onChange={(v) => update("city", v)}
-          />
-
-          <InputPremium
-            label="CEP"
-            value={form.zip}
-            onChange={(v) => handleCep(v)}
-          />
-        </div>
-
-        <div className="pt-4">
-          <button className="bg-green-500 text-black px-6 py-2 rounded-full font-bold hover:bg-green-400 transition w-full md:w-auto">
-            Salvar
-          </button>
-        </div>
-
-      </SectionCard>
-    </>
+    </div>
   );
 }

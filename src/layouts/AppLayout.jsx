@@ -5,54 +5,56 @@ import Footer from "../components/Footer";
 import { Outlet } from "react-router-dom";
 
 export default function AppLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  // começa fechado para não aparecer no mobile
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Fecha automaticamente o sidebar em telas pequenas
   useEffect(() => {
     const handleResize = () => {
+      if (typeof window === "undefined") return;
+
       if (window.innerWidth < 1024) {
+        // mobile / tablet: SEMPRE fechado
         setSidebarOpen(false);
       } else {
+        // desktop: sempre aberto
         setSidebarOpen(true);
       }
     };
 
     handleResize();
     window.addEventListener("resize", handleResize);
-
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return (
-    <div className="flex bg-[#0F131A] text-white min-h-screen relative">
-
+    <div className="min-h-screen bg-black text-white flex relative">
       {/* SIDEBAR */}
-      <Sidebar open={sidebarOpen} />
+      <Sidebar
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-      {/* CONTEÚDO PRINCIPAL */}
+      {/* ÁREA PRINCIPAL */}
       <div
         className={`
-          flex-1 flex flex-col transition-all duration-300
+          flex-1 flex flex-col transition-[margin] duration-300
           ${sidebarOpen ? "ml-0 lg:ml-80" : "ml-0"}
         `}
       >
+        <Header onMenuClick={() => setSidebarOpen((prev) => !prev)} />
 
-        {/* HEADER FIXO */}
-        <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
-
-        {/* MAIN (CORRIGIDO) */}
+        {/* Cada página controla o padding horizontal */}
         <main
           className="
-            flex-1 px-4 sm:px-6
+            flex-1
             pt-[calc(56px+env(safe-area-inset-top))]
+            sm:pt-[calc(64px+env(safe-area-inset-top))]
             pb-10
-            min-h-screen
           "
         >
           <Outlet />
         </main>
 
-        {/* FOOTER */}
         <Footer />
       </div>
     </div>

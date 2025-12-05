@@ -4,37 +4,63 @@ export default function InputPremium({
   onChange,
   locked = false,
   type = "text",
-  icon
+  icon,
+  placeholder,
+  helper,
 }) {
   return (
-    <div className="relative">
-      {/* LABEL */}
-      <label className="block text-gray-400 mb-1 text-sm">{label}</label>
+    <div className="space-y-1.5">
+      {label && (
+        <label className="block text-[11px] sm:text-sm text-gray-400">
+          {label}
+        </label>
+      )}
 
       <div className="relative">
         {icon && (
-          <i className={`${icon} absolute left-3 top-3 text-gray-500 text-lg`} />
+          <i
+            className={`
+              ${icon}
+              absolute left-3.5 top-1/2 -translate-y-1/2
+              text-gray-500 text-base sm:text-lg
+            `}
+          />
         )}
 
         <input
           type={type}
           value={value}
           readOnly={locked}
-          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          onChange={(e) => !locked && onChange && onChange(e.target.value)}
           className={`
-            w-full bg-[#151A22] border px-4 py-3 rounded-lg outline-none text-white 
-            transition-all duration-200 
+            w-full rounded-lg
+            bg-[#050505]
+            border border-[#262626]
+            text-white text-sm
+            px-3.5 sm:px-4 py-2.5 sm:py-3
+            outline-none
+            transition-all duration-200
+            placeholder:text-gray-600
 
-            ${locked ? "border-gray-700 cursor-not-allowed opacity-70" : "border-gray-700 focus:border-green-500 hover:border-gray-600"}
-
-            ${icon ? "pl-10" : ""}
+            ${locked
+              ? "cursor-not-allowed opacity-70"
+              : "hover:border-[#3a3a3a] focus:border-[#B90007] focus:shadow-[0_0_18px_rgba(185,0,7,0.85)]"}
+            
+            ${icon ? "pl-9 sm:pl-10" : ""}
           `}
         />
 
         {locked && (
-          <i className="ri-lock-line absolute right-3 top-3 text-gray-500 text-lg" />
+          <i className="ri-lock-line absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-base sm:text-lg" />
         )}
       </div>
+
+      {helper && (
+        <p className="text-[11px] sm:text-xs text-gray-500 leading-snug">
+          {helper}
+        </p>
+      )}
     </div>
   );
 }
