@@ -244,8 +244,14 @@ export default function TrucoRoom() {
           ].map((carta, i) => (
             <motion.div
               key={i}
-              animate={selectedCard === i ? cardsControl : {}}
               onClick={() => handleCardClick(i)}
+              animate={
+                selectedCard === i
+                  ? cardsControl
+                  : showAnimation
+                  ? { y: 0, opacity: 1 }
+                  : {}
+              }
               style={{
                 transformStyle: "preserve-3d",
                 transform: `rotateY(${carta.rot}deg) rotateX(8deg)`,
@@ -259,10 +265,13 @@ export default function TrucoRoom() {
                 flex flex-col justify-between
                 p-2 cursor-pointer hover:scale-110 hover:rotateY(0deg) transition-all duration-300
                 border border-gray-300/60
-                ${selectedCard === i ? "z-50 ring-2 ring-[#5BFF38] ring-offset-2 ring-offset-black/80" : ""}
+                ${
+                  selectedCard === i
+                    ? "z-50 ring-2 ring-[#5BFF38] ring-offset-2 ring-offset-black/80"
+                    : ""
+                }
               `}
               initial={{ y: 120, opacity: 0 }}
-              animate={showAnimation ? { y: 0, opacity: 1 } : {}}
               transition={{
                 delay: 1.6 + i * 0.15,
                 type: "spring",
