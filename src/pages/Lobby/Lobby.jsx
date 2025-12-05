@@ -69,31 +69,10 @@ export default function Lobby() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* container central – ainda mais compacto no mobile */}
-      <div
-        className="
-          w-full
-          max-w-[420px] sm:max-w-[720px] lg:max-w-[1200px]
-          mx-auto
-          px-2 sm:px-4 md:px-6
-          overflow-x-hidden
-          animate-fade-in
-        "
-      >
-      {/* BANNER */}
-<section
-  aria-label="Banners promocionais"
-  className="
-    mt-3        /* mobile: já descola bem do header */
-    sm:mt-4     /* tablet: um pouco mais de respiro   */
-    md:mt-6     /* desktop: bem confortável           */
-    mb-5 sm:mb-7
-    w-full max-w-full
-  "
->
-  <BannerCarousel />
-</section>
+    <main className="min-h-screen bg-black text-white pt-[72px] sm:pt-[80px]">
+      <div className="w-full max-w-[1250px] mx-auto px-3 sm:px-4 md:px-6 overflow-x-hidden animate-fade-in">
+
+        {/* BANNERS REMOVIDO */}
 
         {/* MODOS DE JOGO */}
         <section
@@ -116,43 +95,26 @@ export default function Lobby() {
           </div>
 
           <div className="relative w-full max-w-full">
-            {/* setas só tablet/desktop */}
+            {/* setas */}
             <button
               type="button"
-              className="
-                hidden md:flex items-center justify-center
-                absolute left-0 top-1/2 -translate-y-1/2 z-10
-                w-7 h-7 rounded-full bg-black/80 border border-white/10
-                hover:border-[#B90007] hover:bg-black
-              "
+              className="hidden md:flex items-center justify-center absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-black/80 border border-white/10 hover:border-[#B90007] hover:bg-black"
               onClick={() => scrollRow(modesRowRef, "left")}
-              aria-label="Anterior"
             >
               <i className="ri-arrow-left-s-line" />
             </button>
 
             <button
               type="button"
-              className="
-                hidden md:flex items-center justify-center
-                absolute right-0 top-1/2 -translate-y-1/2 z-10
-                w-7 h-7 rounded-full bg-black/80 border border-white/10
-                hover:border-[#B90007] hover:bg-black
-              "
+              className="hidden md:flex items-center justify-center absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-black/80 border border-white/10 hover:border-[#B90007] hover:bg-black"
               onClick={() => scrollRow(modesRowRef, "right")}
-              aria-label="Próximo"
             >
               <i className="ri-arrow-right-s-line" />
             </button>
 
             <div
               ref={modesRowRef}
-              className="
-                flex gap-2.5 sm:gap-3.5
-                overflow-x-auto scrollbar-hide custom-scrollbar-horizontal
-                py-1
-                w-full max-w-full
-              "
+              className="flex gap-2.5 sm:gap-3.5 overflow-x-auto scrollbar-hide custom-scrollbar-horizontal py-1 w-full max-w-full"
             >
               {trucoModes.map((m) => (
                 <article key={m.name} className="flex-shrink-0">
@@ -183,22 +145,17 @@ export default function Lobby() {
                         </p>
                       </div>
 
-                      {/* mobile: card inteiro clicável */}
+                      {/* mobile */}
                       <button
                         type="button"
                         className="sm:hidden absolute inset-0"
                         onClick={goToTrucoPaulista}
-                        aria-label={`Entrar em ${m.name}`}
                       />
 
-                      {/* desktop: botão no hover */}
+                      {/* desktop */}
                       <button
                         type="button"
-                        className="
-                          hidden sm:flex absolute inset-0 items-center justify-center
-                          opacity-0 hover:opacity-100 transition-opacity duration-200
-                          bg-black/35
-                        "
+                        className="hidden sm:flex absolute inset-0 items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200 bg-black/35"
                         onClick={goToTrucoPaulista}
                       >
                         <Button
@@ -217,10 +174,7 @@ export default function Lobby() {
         </section>
 
         {/* MESAS DISPONÍVEIS */}
-        <section
-          aria-label="Mesas Disponíveis"
-          className="mb-7 sm:mb-9 w-full max-w-full"
-        >
+        <section aria-label="Mesas Disponíveis" className="mb-7 sm:mb-9 w-full max-w-full">
           <div className="flex items-baseline justify-between mb-2.5">
             <div className="flex-1 min-w-0">
               <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
@@ -239,40 +193,23 @@ export default function Lobby() {
           <div className="relative w-full max-w-full">
             <button
               type="button"
-              className="
-                hidden md:flex items-center justify-center
-                absolute left-0 top-1/2 -translate-y-1/2 z-10
-                w-7 h-7 rounded-full bg-black/80 border border-white/10
-                hover:border-[#B90007] hover:bg-black
-              "
+              className="hidden md:flex items-center justify-center absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-black/80 border border-white/10 hover:border-[#B90007] hover:bg-black"
               onClick={() => scrollRow(tablesRowRef, "left")}
-              aria-label="Anterior"
             >
               <i className="ri-arrow-left-s-line" />
             </button>
 
             <button
               type="button"
-              className="
-                hidden md:flex items-center justify-center
-                absolute right-0 top-1/2 -translate-y-1/2 z-10
-                w-7 h-7 rounded-full bg-black/80 border border-white/10
-                hover:border-[#B90007] hover:bg-black
-              "
+              className="hidden md:flex items-center justify-center absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-black/80 border border-white/10 hover:border-[#B90007] hover:bg-black"
               onClick={() => scrollRow(tablesRowRef, "right")}
-              aria-label="Próximo"
             >
               <i className="ri-arrow-right-s-line" />
             </button>
 
             <div
               ref={tablesRowRef}
-              className="
-                flex gap-2.5 sm:gap-3.5
-                overflow-x-auto scrollbar-hide custom-scrollbar-horizontal
-                py-1
-                w-full max-w-full
-              "
+              className="flex gap-2.5 sm:gap-3.5 overflow-x-auto scrollbar-hide custom-scrollbar-horizontal py-1 w-full max-w-full"
             >
               {exampleTables.map((t) => (
                 <article key={t.id} className="flex-shrink-0">
@@ -311,7 +248,6 @@ export default function Lobby() {
                         type="button"
                         className="sm:hidden absolute inset-0"
                         onClick={goToTrucoPaulista}
-                        aria-label={`Entrar na mesa ${t.id}`}
                       />
 
                       <div className="absolute inset-0 rounded-2xl border border-white/5 hover:border-[#B90007]/80 transition-colors" />
@@ -326,13 +262,7 @@ export default function Lobby() {
         {/* CRIAR APOSTA */}
         <section
           aria-label="Criar Aposta"
-          className="
-            relative mb-14 w-full max-w-full
-            rounded-2xl border border-[#262626]
-            bg-gradient-to-b from-black via-[#050505] to-black
-            shadow-[0_14px_40px_rgba(0,0,0,0.9)]
-            overflow-hidden
-          "
+          className="relative mb-14 w-full max-w-full rounded-2xl border border-[#262626] bg-gradient-to-b from-black via-[#050505] to-black shadow-[0_14px_40px_rgba(0,0,0,0.9)] overflow-hidden"
         >
           <div className="pointer-events-none absolute inset-0 rounded-2xl border border-white/5" />
 
@@ -394,6 +324,6 @@ export default function Lobby() {
           </div>
         </section>
       </div>
-    </div>
+    </main>
   );
 }
