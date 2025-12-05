@@ -1,88 +1,60 @@
-// HUD responsivo
+// src/pages/GameRoom/mesa/HUD.jsx
 
-export default function HUD({ teamA, teamB, mode }) {
+export default function HUD() {
   return (
     <div
       className="
-        w-full max-w-3xl
-        bg-[#02040a]
-        border border-white/10
-        rounded-[20px] sm:rounded-[26px]
-        px-3 sm:px-5 py-2.5 sm:py-3
-        shadow-[0_16px_40px_rgba(0,0,0,0.85)]
-        flex flex-col items-center gap-2.5 sm:gap-3
+        bg-[#082c73]
+        rounded-[18px]
+        px-5 py-3
+        flex items-center
+        text-white
+        shadow-[0_16px_40px_rgba(0,0,0,0.7)]
+        min-w-[230px]
       "
     >
-      {/* linha superior: info + modo */}
-      <div className="flex items-center justify-between w-full text-[10px] sm:text-xs text-gray-400">
-        <span className="truncate">Sala cash • Limite médio</span>
-        <span className="whitespace-nowrap ml-2">
-          Modo:{" "}
-          <span className="text-emerald-400 font-semibold uppercase">
-            {mode}
-          </span>
+      {/* Bloco "Valendo 1 ponto" */}
+      <div className="flex flex-col justify-center mr-6">
+        <span className="text-[10px] tracking-[0.16em] uppercase opacity-80">
+          Valendo
+        </span>
+
+        <div className="flex items-baseline gap-1 mt-0.5">
+          <span className="text-3xl font-bold leading-none">1</span>
+          <span className="text-[10px] mt-2 opacity-80">ponto</span>
+        </div>
+      </div>
+
+      {/* Divisor */}
+      <div className="w-px h-12 bg-white/20 mr-5" />
+
+      {/* Rodadas + bolinhas */}
+      <div className="flex flex-col gap-1 mr-6">
+        <span className="text-[11px] font-semibold">Rodadas</span>
+
+        <div className="flex gap-1.5">
+          {/* 6 bolinhas coloridas (pode adaptar depois) */}
+          {["#16a34a", "#16a34a", "#16a34a", "#eab308", "#ef4444", "#6b7280"].map(
+            (color, i) => (
+              <span
+                key={i}
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: color }}
+              />
+            )
+          )}
+        </div>
+      </div>
+
+      {/* Pontos times */}
+      <div className="flex flex-col gap-0.5 text-[10px]">
+        <span className="text-red-400">
+          ● <span className="font-semibold">0</span> pontos
+        </span>
+        <span className="text-sky-400">
+          ● <span className="font-semibold">0</span> pontos
         </span>
       </div>
-
-      <div className="w-full h-px bg-white/10" />
-
-      {/* linha principal */}
-      <div className="w-full flex items-center justify-between text-xs sm:text-sm md:text-base gap-3">
-        {/* TIME A */}
-        <div className="flex flex-col items-start gap-1">
-          <span className="text-red-400 font-semibold uppercase text-[10px] sm:text-xs">
-            Time A
-          </span>
-          <div className="flex items-center gap-1.5">
-            {[0, 1, 2].map((i) => (
-              <span
-                key={i}
-                className={`w-2 h-2 rounded-full ${
-                  i < teamA.round ? "bg-red-500" : "border border-red-500"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* MÉTRICAS CENTRAIS */}
-        <div className="flex-1 flex items-center justify-center gap-4 sm:gap-6 text-[10px] sm:text-xs md:text-sm">
-          <Metric label="Rodada" value={teamA.round} />
-          <Metric label="Pontos" value={teamA.points} />
-          <Metric label="Tentos" value={teamA.tentos} />
-          <Metric label="Jogos" value={teamA.games} />
-        </div>
-
-        {/* TIME B */}
-        <div className="flex flex-col items-end gap-1">
-          <span className="text-sky-400 font-semibold uppercase text-[10px] sm:text-xs">
-            Time B
-          </span>
-          <div className="flex items-center gap-1.5">
-            {[0, 1, 2].map((i) => (
-              <span
-                key={i}
-                className={`w-2 h-2 rounded-full ${
-                  i < teamB.round ? "bg-sky-400" : "border border-sky-400"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Metric({ label, value }) {
-  return (
-    <div className="flex flex-col items-center gap-0.5">
-      <span className="text-gray-400 text-[9px] sm:text-[10px] md:text-xs uppercase tracking-wide">
-        {label}
-      </span>
-      <span className="text-white font-semibold text-xs sm:text-sm md:text-base">
-        {value}
-      </span>
     </div>
   );
 }
