@@ -1,97 +1,184 @@
 // src/pages/account/tabs/AccountInfo.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "../../../contexts/AuthContext";
 import SectionCard from "../../../components/account/SectionCard.jsx";
 import InputPremium from "../../../components/account/InputPremium.jsx";
-import EditButton from "../../../components/account/EditButton.jsx";
+import { api } from "../../../services/api";
 
 export default function AccountInfo() {
-  const [editing, setEditing] = useState(false);
+  const { user, login } = useAuth();
 
   const [form, setForm] = useState({
-    name: "Jogador Pro",
-    email: "jogador@example.com",
-    phone: "+55 (11) 99999-9999",
-    birthdate: "1995-01-01",
+    name: "",
+    email: "",
+    phone: "",
+    birthdate: "",
   });
 
-  const handleChange = (key, value) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
+  const [warning, setWarning] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  /* ------------------------------------------
+      MÁSCARA DE TELEFONE
+  ------------------------------------------ */
+  const maskPhone = (value) => {
+    let v = value.replace(/\D/g, "");
+    if (v.length <= 10) {
+      return v.replace(/(\d{2})(\d{4})(\d+)/, "($1) $2-$3");
+    }
+    return v.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
   };
 
-  const handleSave = () => {
-    console.log("SALVAR DADOS DA CONTA:", form);
-    setEditing(false);
-    alert("Informações da conta salvas com sucesso!");
+  /* ------------------------------------------
+      VALIDAÇÃO DE MAIOR DE 18 ANOS
+  ------------------------------------------ */
+  const is18 = (date) => {
+    if (!date) return false;
+
+    const birth = new Date(date);
+    const today = new Date();
+
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+
+    return age >= 18;
+  };
+
+  /* ------------------------------------------
+      CARREGA DADOS DO USUÁRIO
+  ------------------------------------------ */
+  useEffect(() => {
+    if (user) {
+      const incomplete = !user.phone || !user.birthdate;
+
+      setForm({
+        name: user.name,
+        email: user.email,
+        phone: user.phone || "",
+        birthdate: user.birthdate || "",
+      });
+
+      if (incomplete) {
+        setWarning("⚠ Complete seu cadastro inserindo telefone e data de nascimento.");
+        setEditing(true); // libera edição automática
+      }
+    }
+  }, [user]);
+
+  /* ------------------------------------------
+      SALVAR NO BACKEND
+  ------------------------------------------ */
+  const handleSave = async () => {
+    setSaving(true);
+    setWarning("");
+
+    if (!is18(form.birthdate)) {
+      setWarning("⚠ Apenas maiores de 18 anos podem usar a plataforma.");
+      setSaving(false);
+      return;
+    }
+
+    try {
+      const res = await api.post("/profile/basic", {
+        phone: form.phone,
+        birthdate: form.birthdate,
+      });
+
+      if (res.data.success) {
+        login(res.data.user); // Atualiza contexto com dados novos
+        setEditing(false);
+      }
+    } catch (err) {
+      setWarning("⚠ Não foi possível salvar. Tente novamente.");
+    }
+
+    setSaving(false);
   };
 
   return (
     <div className="min-w-0">
       <SectionCard title="Informações da Conta">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-          <p className="text-[11px] sm:text-xs text-gray-400 max-w-md">
-            Mantenha seus dados pessoais sempre atualizados para garantir a
-            segurança da sua conta e facilitar saques e depósitos.
-          </p>
 
-          {!editing ? (
-            <EditButton onClick={() => setEditing(true)} />
-          ) : (
-            <button
-              onClick={handleSave}
-              className="
-                inline-flex items-center gap-2
-                px-3.5 py-1.5
-                rounded-full
-                bg-[#B90007]
-                text-white text-xs sm:text-sm font-semibold
-                shadow-[0_0_18px_rgba(185,0,7,0.85)]
-                hover:bg-[#e01515]
-                hover:shadow-[0_0_26px_rgba(185,0,7,1)]
-                transition-all duration-200
-                active:scale-95
-              "
-            >
-              <i className="ri-save-3-line text-sm" />
-              Salvar alterações
-            </button>
-          )}
-        </div>
+        {/* AVISO */}
+        {warning && (
+          <div className="bg-[#231000] border border-[#b93] text-[#ffcc66] px-4 py-3 rounded-xl text-xs mb-6 flex items-center gap-2">
+            <i className="ri-alert-line text-lg" />
+            {warning}
+          </div>
+        )}
 
+        {/* CAMPOS */}
         <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
+
           <InputPremium
             label="Nome completo"
             value={form.name}
-            onChange={(v) => handleChange("name", v)}
-            locked={!editing}
+            locked
             icon="ri-user-line"
           />
 
           <InputPremium
             label="E-mail"
             value={form.email}
-            onChange={(v) => handleChange("email", v)}
-            locked={!editing}
-            icon="ri-mail-line"
+            locked
             type="email"
+            icon="ri-mail-line"
           />
 
           <InputPremium
             label="Telefone"
-            value={form.phone}
-            onChange={(v) => handleChange("phone", v)}
+            value={maskPhone(form.phone)}
             locked={!editing}
             icon="ri-phone-line"
+            placeholder="(00) 00000-0000"
+            onChange={(v) =>
+              setForm({ ...form, phone: v.replace(/\D/g, "") })
+            }
           />
 
           <InputPremium
             label="Data de Nascimento"
             value={form.birthdate}
-            onChange={(v) => handleChange("birthdate", v)}
             locked={!editing}
             type="date"
             icon="ri-calendar-event-line"
+            onChange={(v) => setForm({ ...form, birthdate: v })}
           />
         </div>
+
+        {/* BOTÃO SALVAR */}
+        {editing && (
+          <div className="flex justify-end mt-6">
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="
+                px-6 py-2.5 rounded-full bg-[#B90007]
+                text-white text-sm font-semibold
+                hover:bg-[#e01515]
+                disabled:opacity-50 inline-flex items-center gap-2
+              "
+            >
+              {saving ? (
+                <>
+                  <i className="ri-loader-4-line animate-spin text-sm" />
+                  Salvando...
+                </>
+              ) : (
+                <>
+                  <i className="ri-check-line text-sm" />
+                  Salvar dados
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
       </SectionCard>
     </div>
   );

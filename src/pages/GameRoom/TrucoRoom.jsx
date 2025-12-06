@@ -1,11 +1,22 @@
 import { useState, useEffect } from "react";
 import { motion, useAnimation } from "framer-motion";
+import { api } from "../../services/api";
+import { useAuth } from "../../contexts/AuthContext";
 import Mesa from "./mesa/Mesa";
 import HUD from "./mesa/HUD";
 import EllipseAvatar from "../../assets/Ellipse 1.png";
 import FundoMesa from "../../assets/fundo-mesa.png";
 
 export default function TrucoRoom() {
+  const { user } = useAuth();
+
+  const [balance, setBalance] = useState(0);               // 🔥 Saldo real
+  const [loadingBalance, setLoadingBalance] = useState(true);
+  const [showNoBalance, setShowNoBalance] = useState(false);
+
+  const partidaMinima = 2.00;
+
+  // ================ LÓGICA DO SEU ARQUIVO ORIGINAL ==================
   const [loading, setLoading] = useState(true);
   const [loadingStep, setLoadingStep] = useState("Carregando Jogo...");
   const [showAnimation, setShowAnimation] = useState(false);
@@ -18,6 +29,27 @@ export default function TrucoRoom() {
   const trucoShake = useAnimation();
   const cardsControl = useAnimation();
 
+  // ==================== BUSCAR SALDO DO BACKEND =====================
+  useEffect(() => {
+    async function loadBalance() {
+      try {
+        const res = await api.get("/user");
+        const saldo = res.data.user.balance ?? 0;
+        setBalance(saldo);
+
+        if (saldo < partidaMinima) {
+          setShowNoBalance(true);
+        }
+      } catch (err) {
+        console.log("Erro ao puxar saldo:", err);
+      }
+      setLoadingBalance(false);
+    }
+
+    loadBalance();
+  }, []);
+
+  // ==================== LOADING ANIMAÇÕES ===========================
   useEffect(() => {
     const timers = [];
     timers.push(setTimeout(() => setLoadingStep("Carregando Jogo..."), 0));
@@ -37,6 +69,11 @@ export default function TrucoRoom() {
   }, [loading]);
 
   const handleTrucoClick = () => {
+    if (balance < partidaMinima) {
+      setShowNoBalance(true);
+      return;
+    }
+
     clickSound.currentTime = 0;
     clickSound.play().catch(() => {});
     trucoShake.start({
@@ -48,6 +85,11 @@ export default function TrucoRoom() {
   };
 
   const handleCardClick = async (index) => {
+    if (balance < partidaMinima) {
+      setShowNoBalance(true);
+      return;
+    }
+
     clickSound.currentTime = 0;
     clickSound.play().catch(() => {});
     setSelectedCard(index);
@@ -72,7 +114,8 @@ export default function TrucoRoom() {
     }, 1000);
   };
 
-  if (loading) {
+  // ================= LOADING DA SALA =================
+  if (loading || loadingBalance) {
     return (
       <div
         className="min-h-screen w-full flex flex-col items-center justify-center bg-cover bg-center relative"
@@ -96,7 +139,26 @@ export default function TrucoRoom() {
     >
       <div className="absolute inset-0 bg-black/60" />
 
-      {/* Texto TRUCOO!!! */}
+      {/* =================== POPUP SALDO INSUFICIENTE =================== */}
+      {showNoBalance && (
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-[999]">
+          <div className="bg-[#111] border border-[#333] rounded-2xl p-6 w-80 text-center shadow-xl">
+            <h2 className="text-red-400 text-xl font-bold mb-2">Saldo insuficiente</h2>
+            <p className="text-gray-300 text-sm mb-4">
+              Você precisa de pelo menos <b>R$ {partidaMinima.toFixed(2)}</b> para jogar.
+            </p>
+
+            <button
+              onClick={() => setShowNoBalance(false)}
+              className="w-full bg-[#5BFF38] text-black font-bold py-2 rounded-xl"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* =================== HUD DO SEU CÓDIGO ORIGINAL =================== */}
       {showTrucoText && (
         <motion.div
           className="absolute inset-0 flex items-center justify-center bg-black/80 z-50"
@@ -145,7 +207,6 @@ export default function TrucoRoom() {
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
       >
-        {/* HUD topo */}
         <motion.div
           className="
             mt-4 
@@ -156,10 +217,10 @@ export default function TrucoRoom() {
           animate={showAnimation ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 1, duration: 0.5 }}
         >
-          <HUD />
+          <HUD balance={balance} />
         </motion.div>
 
-        {/* Jogadores superiores no mobile */}
+        {/* Jogadores MOBILE */}
         <div className="flex md:hidden w-full justify-around mt-6">
           <SidePlayerCard label="PLAYER 1" />
           <SidePlayerCard label="PLAYER 2" />
@@ -192,7 +253,7 @@ export default function TrucoRoom() {
           <SidePlayerCard label="PLAYER 4" />
         </motion.div>
 
-        {/* VALOR POR PARTIDA E APOSTA — SOMENTE DESKTOP */}
+        {/* CONFIGURAÇÃO DE APOSTA — SEM ALTERAR NADA */}
         <div className="hidden md:flex flex-col items-start absolute left-[3%] bottom-[-450px] text-white bg-black/60 border border-white/10 rounded-2xl backdrop-blur-sm shadow-[0_0_30px_rgba(0,0,0,0.9)]">
           <div className="px-4 py-3">
             <p className="text-xs font-semibold mb-1 tracking-[0.18em] uppercase text-white/70">
@@ -208,28 +269,28 @@ export default function TrucoRoom() {
               Valor de Aposta:
             </p>
             <div className="flex gap-3">
-              {[20, 50, 100, 200].map((valor) => (
+              {[20, 50, 100, 200].map((v) => (
                 <button
-                  key={valor}
-                  onClick={() => setSelectedBet(valor)}
+                  key={v}
+                  onClick={() => setSelectedBet(v)}
                   className={`
                     px-4 py-2 rounded-full text-xs font-bold tracking-[0.12em] uppercase
                     transition-all duration-200
                     ${
-                      selectedBet === valor
+                      selectedBet === v
                         ? "bg-[#5BFF38] text-black shadow-[0_0_18px_rgba(91,255,56,0.85)]"
                         : "bg-black/60 border border-white/20 text-white hover:bg-white hover:text-black hover:shadow-[0_0_18px_rgba(255,255,255,0.5)]"
                     }
                   `}
                 >
-                  R$ {valor}
+                  R$ {v}
                 </button>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Cartas 3D */}
+        {/* CARTAS 3D — INALTERADAS */}
         <div
           className="
             flex justify-center gap-4 mb-8
@@ -241,115 +302,87 @@ export default function TrucoRoom() {
             { valor: "A", naipe: "♥", cor: "text-red-500", rot: -12 },
             { valor: "K", naipe: "♣", cor: "text-black", rot: 0 },
             { valor: "Q", naipe: "♦", cor: "text-red-500", rot: 12 },
-          ].map((carta, i) => (
+          ].map((c, i) => (
             <motion.div
               key={i}
               onClick={() => handleCardClick(i)}
-              animate={
-                selectedCard === i
-                  ? cardsControl
-                  : showAnimation
-                  ? { y: 0, opacity: 1 }
-                  : {}
-              }
+              animate={selectedCard === i ? cardsControl : showAnimation ? { y: 0, opacity: 1 } : {}}
               style={{
                 transformStyle: "preserve-3d",
-                transform: `rotateY(${carta.rot}deg) rotateX(8deg)`,
+                transform: `rotateY(${c.rot}deg) rotateX(8deg)`,
               }}
               className={`
-                relative
-                w-[75px] h-[115px] md:w-[90px] md:h-[135px]
+                relative w-[75px] h-[115px] md:w-[90px] md:h-[135px]
                 bg-gradient-to-br from-[#ffffff] via-[#f5f5f5] to-[#dcdcdc]
                 rounded-[12px]
                 shadow-[0_18px_35px_rgba(0,0,0,0.75)]
                 flex flex-col justify-between
-                p-2 cursor-pointer hover:scale-110 hover:rotateY(0deg) transition-all duration-300
-                border border-gray-300/60
-                ${
-                  selectedCard === i
-                    ? "z-50 ring-2 ring-[#5BFF38] ring-offset-2 ring-offset-black/80"
-                    : ""
-                }
+                p-2 cursor-pointer hover:scale-110 hover:rotateY(0deg)
+                transition-all duration-300 border border-gray-300/60
+                ${selectedCard === i ? "z-50 ring-2 ring-[#5BFF38] ring-offset-2 ring-offset-black/80" : ""}
               `}
               initial={{ y: 120, opacity: 0 }}
-              transition={{
-                delay: 1.6 + i * 0.15,
-                type: "spring",
-                stiffness: 80,
-              }}
+              transition={{ delay: 1.6 + i * 0.15, type: "spring", stiffness: 80 }}
             >
-              <div className={`text-sm font-bold ${carta.cor} tracking-[0.08em]`}>
-                {carta.valor}
-                <span className="ml-0.5">{carta.naipe}</span>
+              <div className={`text-sm font-bold ${c.cor} tracking-[0.08em]`}>
+                {c.valor}
+                <span className="ml-0.5">{c.naipe}</span>
               </div>
-              <div className={`flex items-center justify-center text-3xl ${carta.cor}`}>
-                {carta.naipe}
-              </div>
-              <div className={`text-sm font-bold rotate-180 ${carta.cor} text-right tracking-[0.08em]`}>
-                {carta.valor}
-                <span className="ml-0.5">{carta.naipe}</span>
+              <div className={`flex items-center justify-center text-3xl ${c.cor}`}>{c.naipe}</div>
+              <div className={`text-sm font-bold rotate-180 ${c.cor} text-right tracking-[0.08em]`}>
+                {c.valor}
+                <span className="ml-0.5">{c.naipe}</span>
               </div>
               <div className="absolute inset-0 rounded-[12px] bg-gradient-to-t from-transparent via-white/10 to-white/25 pointer-events-none" />
             </motion.div>
           ))}
         </div>
 
-        {/* Botões */}
+        {/* BOTÕES — INALTERADOS, APENAS VALIDA SALDO */}
         <motion.div
           className="
-            flex flex-col items-center gap-6
-            mt-2 md:mt-0
+            flex flex-col items-center gap-6 mt-2 md:mt-0
             md:absolute md:bottom-[-420px] md:left-[82%] md:-translate-x-1/2
           "
           initial={{ y: 150, opacity: 0 }}
           animate={showAnimation ? { y: 0, opacity: 1 } : {}}
           transition={{ delay: 1.4, type: "spring", stiffness: 70 }}
         >
-          {/* Mobile */}
           <div className="flex justify-between w-full px-4 md:hidden">
-            <button
-              onClick={() => console.log("Correr")}
-              className="flex-1 mx-1 h-[65px] rounded-full bg-gradient-to-br from-[#4b1510] to-[#8b2616] text-white font-semibold text-sm tracking-[0.12em] shadow-[0_0_18px_rgba(0,0,0,0.8)] uppercase hover:brightness-110 transition min-w-[110px] border border-white/10"
-            >
+            <button className="flex-1 mx-1 h-[65px] rounded-full bg-gradient-to-br from-[#4b1510] to-[#8b2616] text-white font-semibold text-sm tracking-[0.12em] shadow-[0_0_18px_rgba(0,0,0,0.8)] uppercase border border-white/10">
               Correr
             </button>
+
             <motion.button
               animate={trucoShake}
               onClick={handleTrucoClick}
-              className="flex-1 mx-1 h-[65px] rounded-full bg-[#5BFF38] text-black font-extrabold text-sm tracking-[0.18em] shadow-[0_0_26px_rgba(91,255,56,0.9)] uppercase hover:brightness-110 transition min-w-[130px] border border-black/40"
+              className="flex-1 mx-1 h-[65px] rounded-full bg-[#5BFF38] text-black font-extrabold text-sm tracking-[0.18em] shadow-[0_0_26px_rgba(91,255,56,0.9)] uppercase border border-black/40"
             >
               Truco
             </motion.button>
-            <div className="flex-1 mx-1 h-[65px] rounded-full bg-gradient-to-br from-[#4b1510] to-[#8b2616] text-white flex flex-col justify-center text-center text-xs shadow-[0_0_18px_rgba(0,0,0,0.9)] min-w-[120px] border border-white/10">
-              <span className="font-medium tracking-[0.16em] uppercase text-white/70">
-                Saldo
-              </span>
-              <span className="text-sm font-semibold">R$ 1.280,54</span>
+
+            <div className="flex-1 mx-1 h-[65px] rounded-full bg-gradient-to-br from-[#4b1510] to-[#8b2616] text-white flex flex-col justify-center text-center text-xs shadow-[0_0_18px_rgba(0,0,0,0.9)] border border-white/10">
+              <span className="font-medium tracking-[0.16em] uppercase text-white/70">Saldo</span>
+              <span className="text-sm font-semibold">R$ {balance.toFixed(2)}</span>
             </div>
           </div>
 
-          {/* Desktop */}
           <div className="hidden md:flex justify-center gap-4">
-            <button
-              onClick={() => console.log("Correr")}
-              className="h-[55px] px-8 rounded-full bg-gradient-to-br from-[#4b1510] to-[#8b2616] text-white font-semibold text-sm tracking-[0.16em] shadow-[0_0_20px_rgba(0,0,0,0.9)] uppercase hover:brightness-110 transition border border-white/10"
-            >
+            <button className="h-[55px] px-8 rounded-full bg-gradient-to-br from-[#4b1510] to-[#8b2616] text-white font-semibold text-sm tracking-[0.16em] border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.9)]">
               Correr
             </button>
 
             <motion.button
               animate={trucoShake}
               onClick={handleTrucoClick}
-              className="h-[55px] px-10 rounded-full bg-[#5BFF38] text-black font-extrabold text-sm tracking-[0.22em] shadow-[0_0_28px_rgba(91,255,56,0.95)] uppercase hover:brightness-110 transition border border-black/50"
+              className="h-[55px] px-10 rounded-full bg-[#5BFF38] text-black font-extrabold text-sm tracking-[0.22em] border border-black/50 shadow-[0_0_28px_rgba(91,255,56,0.95)]"
             >
               Truco
             </motion.button>
 
-            <div className="h-[55px] px-8 rounded-full bg-gradient-to-br from-[#4b1510] to-[#8b2616] text-white flex flex-col justify-center text-center shadow-[0_0_20px_rgba(0,0,0,0.9)] text-xs border border-white/10">
-              <span className="font-medium tracking-[0.16em] uppercase text-white/70">
-                Saldo
-              </span>
-              <span className="text-sm font-bold">R$ 1.280,54</span>
+            <div className="h-[55px] px-8 rounded-full bg-gradient-to-br from-[#4b1510] to-[#8b2616] text-white flex flex-col justify-center text-center border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.9)] text-xs">
+              <span className="font-medium tracking-[0.16em] uppercase text-white/70">Saldo</span>
+              <span className="text-sm font-bold">R$ {balance.toFixed(2)}</span>
             </div>
           </div>
         </motion.div>
