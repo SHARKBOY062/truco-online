@@ -69,16 +69,31 @@ export default function Lobby() {
   };
 
   return (
-    <main className="min-h-screen bg-black text-white pt-[72px] sm:pt-[80px]">
-      <div className="w-full max-w-[1250px] mx-auto px-3 sm:px-4 md:px-6 overflow-x-hidden animate-fade-in">
-
-        {/* BANNERS REMOVIDO */}
+    <div className="min-h-screen bg-black text-white">
+      <div
+        className="
+          w-full
+          max-w-[420px] sm:max-w-[720px] lg:max-w-[1200px]
+          mx-auto
+          px-2 sm:px-4 md:px-6
+          overflow-x-hidden
+          animate-fade-in
+        "
+      >
+        {/* BANNER */}
+        <section
+          aria-label="Banners promocionais"
+          className="
+            mt-3 sm:mt-4 md:mt-6
+            mb-5 sm:mb-7
+            w-full max-w-full
+          "
+        >
+          <BannerCarousel />
+        </section>
 
         {/* MODOS DE JOGO */}
-        <section
-          aria-label="Modos de Jogo"
-          className="mb-7 sm:mb-9 w-full max-w-full"
-        >
+        <section aria-label="Modos de Jogo" className="mb-7 sm:mb-9 w-full max-w-full">
           <div className="flex items-baseline justify-between mb-2.5">
             <div className="flex-1 min-w-0">
               <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
@@ -89,32 +104,49 @@ export default function Lobby() {
                 Escolha a variação que você quer jogar.
               </p>
             </div>
-            <span className="hidden sm:block text-[10px] text-gray-500">
-              Arraste para o lado
-            </span>
+
+            <span className="hidden sm:block text-[10px] text-gray-500">Arraste para o lado</span>
           </div>
 
           <div className="relative w-full max-w-full">
-            {/* setas */}
+            {/* seta esquerda */}
             <button
               type="button"
-              className="hidden md:flex items-center justify-center absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-black/80 border border-white/10 hover:border-[#B90007] hover:bg-black"
+              className="
+                hidden md:flex items-center justify-center
+                absolute left-0 top-1/2 -translate-y-1/2 z-10
+                w-7 h-7 rounded-full bg-black/80 border border-white/10
+                hover:border-[#B90007]
+              "
               onClick={() => scrollRow(modesRowRef, "left")}
+              aria-label="Anterior"
             >
               <i className="ri-arrow-left-s-line" />
             </button>
 
+            {/* seta direita */}
             <button
               type="button"
-              className="hidden md:flex items-center justify-center absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-black/80 border border-white/10 hover:border-[#B90007] hover:bg-black"
+              className="
+                hidden md:flex items-center justify-center
+                absolute right-0 top-1/2 -translate-y-1/2 z-10
+                w-7 h-7 rounded-full bg-black/80 border border-white/10
+                hover:border-[#B90007]
+              "
               onClick={() => scrollRow(modesRowRef, "right")}
+              aria-label="Próximo"
             >
               <i className="ri-arrow-right-s-line" />
             </button>
 
             <div
               ref={modesRowRef}
-              className="flex gap-2.5 sm:gap-3.5 overflow-x-auto scrollbar-hide custom-scrollbar-horizontal py-1 w-full max-w-full"
+              className="
+                flex gap-2.5 sm:gap-3.5
+                overflow-x-auto scrollbar-hide custom-scrollbar-horizontal
+                py-1
+                w-full max-w-full
+              "
             >
               {trucoModes.map((m) => (
                 <article key={m.name} className="flex-shrink-0">
@@ -150,18 +182,20 @@ export default function Lobby() {
                         type="button"
                         className="sm:hidden absolute inset-0"
                         onClick={goToTrucoPaulista}
+                        aria-label={`Entrar em ${m.name}`}
                       />
 
                       {/* desktop */}
                       <button
                         type="button"
-                        className="hidden sm:flex absolute inset-0 items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200 bg-black/35"
+                        className="
+                          hidden sm:flex absolute inset-0 items-center justify-center
+                          opacity-0 hover:opacity-100 transition-opacity duration-200
+                          bg-black/35
+                        "
                         onClick={goToTrucoPaulista}
                       >
-                        <Button
-                          size="xs"
-                          className="!bg-[#B90007] !px-3 !py-1 text-[10px]"
-                        >
+                        <Button size="xs" className="!bg-[#B90007] !px-3 !py-1 text-[10px]">
                           Jogar
                         </Button>
                       </button>
@@ -178,38 +212,52 @@ export default function Lobby() {
           <div className="flex items-baseline justify-between mb-2.5">
             <div className="flex-1 min-w-0">
               <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
-                <span className="w-1 h-4 rounded-full bg-[#B90007] shadow-[0_0_6px_rgba(185,0,7,0.9)]" />
+                <span className="w-1 h-4 rounded-full bg-[#B90007]" />
                 <span className="truncate">Mesas Disponíveis</span>
               </h2>
-              <p className="mt-0.5 text-[10px] text-gray-400">
-                Encontre uma mesa pública e entre em segundos.
-              </p>
+              <p className="mt-0.5 text-[10px] text-gray-400">Encontre uma mesa pública e entre em segundos.</p>
             </div>
-            <span className="hidden sm:block text-[10px] text-gray-500">
-              Arraste para o lado
-            </span>
+
+            <span className="hidden sm:block text-[10px] text-gray-500">Arraste para o lado</span>
           </div>
 
           <div className="relative w-full max-w-full">
             <button
               type="button"
-              className="hidden md:flex items-center justify-center absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-black/80 border border-white/10 hover:border-[#B90007] hover:bg-black"
+              className="
+                hidden md:flex items-center justify-center
+                absolute left-0 top-1/2 -translate-y-1/2 z-10
+                w-7 h-7 rounded-full bg-black/80 border border-white/10
+                hover:border-[#B90007]
+              "
               onClick={() => scrollRow(tablesRowRef, "left")}
+              aria-label="Anterior"
             >
               <i className="ri-arrow-left-s-line" />
             </button>
 
             <button
               type="button"
-              className="hidden md:flex items-center justify-center absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-black/80 border border-white/10 hover:border-[#B90007] hover:bg-black"
+              className="
+                hidden md:flex items-center justify-center
+                absolute right-0 top-1/2 -translate-y-1/2 z-10
+                w-7 h-7 rounded-full bg-black/80 border border-white/10
+                hover:border-[#B90007]
+              "
               onClick={() => scrollRow(tablesRowRef, "right")}
+              aria-label="Próximo"
             >
               <i className="ri-arrow-right-s-line" />
             </button>
 
             <div
               ref={tablesRowRef}
-              className="flex gap-2.5 sm:gap-3.5 overflow-x-auto scrollbar-hide custom-scrollbar-horizontal py-1 w-full max-w-full"
+              className="
+                flex gap-2.5 sm:gap-3.5
+                overflow-x-auto scrollbar-hide custom-scrollbar-horizontal
+                py-1
+                w-full max-w-full
+              "
             >
               {exampleTables.map((t) => (
                 <article key={t.id} className="flex-shrink-0">
@@ -226,28 +274,24 @@ export default function Lobby() {
                         <p className="font-bold text-[10px] sm:text-[11px] leading-tight text-soft-shadow">
                           Mesa #{t.id}
                         </p>
-                        <p className="text-[9px] sm:text-[10px] text-gray-200 truncate text-soft-shadow">
-                          {t.mode}
-                        </p>
-                        <p className="text-[9px] sm:text-[10px] text-gray-200 text-soft-shadow">
+                        <p className="text-[9px] sm:text-[10px] text-gray-200 truncate text-soft-shadow">{t.mode}</p>
+                        <p className="text-[9px] sm:text-[10px] text-gray-200">
                           Stake: <span className="font-semibold">R$ {t.stake}</span>
                         </p>
 
                         <div className="hidden sm:block mt-1">
-                          <Button
-                            size="xs"
-                            className="w-full !bg-[#B90007] text-[10px]"
-                            onClick={goToTrucoPaulista}
-                          >
+                          <Button size="xs" className="w-full !bg-[#B90007] text-[10px]" onClick={goToTrucoPaulista}>
                             Entrar
                           </Button>
                         </div>
                       </div>
 
+                      {/* mobile */}
                       <button
                         type="button"
                         className="sm:hidden absolute inset-0"
                         onClick={goToTrucoPaulista}
+                        aria-label={`Entrar na mesa ${t.id}`}
                       />
 
                       <div className="absolute inset-0 rounded-2xl border border-white/5 hover:border-[#B90007]/80 transition-colors" />
@@ -262,14 +306,20 @@ export default function Lobby() {
         {/* CRIAR APOSTA */}
         <section
           aria-label="Criar Aposta"
-          className="relative mb-14 w-full max-w-full rounded-2xl border border-[#262626] bg-gradient-to-b from-black via-[#050505] to-black shadow-[0_14px_40px_rgba(0,0,0,0.9)] overflow-hidden"
+          className="
+            relative mb-14 w-full max-w-full
+            rounded-2xl border border-[#262626]
+            bg-gradient-to-b from-black via-[#050505] to-black
+            shadow-[0_14px_40px_rgba(0,0,0,0.9)]
+            overflow-hidden
+          "
         >
           <div className="pointer-events-none absolute inset-0 rounded-2xl border border-white/5" />
 
           <div className="relative p-3.5 sm:p-5 space-y-5">
             <div>
               <h2 className="text-base sm:text-lg font-semibold flex items-center gap-2">
-                <span className="w-1 h-4 rounded-full bg-[#B90007] animate-gold-pulse" />
+                <span className="w-1 h-4 rounded-full bg-[#B90007]" />
                 Criar Aposta
               </h2>
               <p className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">
@@ -278,12 +328,9 @@ export default function Lobby() {
             </div>
 
             <div className="bg-black/90 border border-[#333] p-3.5 sm:p-4 rounded-xl">
-              <h3 className="text-[12px] sm:text-sm font-bold mb-1">
-                Convide amigos para jogar!
-              </h3>
+              <h3 className="text-[12px] sm:text-sm font-bold mb-1">Convide amigos para jogar!</h3>
               <p className="text-gray-400 text-[10px] sm:text-[11px] mb-3">
-                Gere um link exclusivo para convidar seus amigos e iniciar uma
-                mesa privada.
+                Gere um link exclusivo para convidar seus amigos e iniciar uma mesa privada.
               </p>
               <Button size="sm" className="w-full !bg-[#B90007] text-[11px]">
                 Gerar Link de Convite
@@ -292,38 +339,22 @@ export default function Lobby() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
-                <p className="text-gray-300 mb-1.5 text-[12px] sm:text-sm">
-                  Valor do Stake
-                </p>
-                <StakeSelector
-                  stakes={stakes}
-                  value={selectedStake}
-                  onChange={setSelectedStake}
-                />
+                <p className="text-gray-300 mb-1.5 text-[12px] sm:text-sm">Valor do Stake</p>
+                <StakeSelector stakes={stakes} value={selectedStake} onChange={setSelectedStake} />
               </div>
 
               <div>
-                <p className="text-gray-300 mb-1.5 text-[12px] sm:text-sm">
-                  Estilo de Truco
-                </p>
-                <ModeSelector
-                  modes={trucoModes}
-                  selected={selectedMode}
-                  onChange={setSelectedMode}
-                />
+                <p className="text-gray-300 mb-1.5 text-[12px] sm:text-sm">Estilo de Truco</p>
+                <ModeSelector modes={trucoModes} selected={selectedMode} onChange={setSelectedMode} />
               </div>
             </div>
 
-            <Button
-              size="md"
-              className="w-full !bg-[#B90007] text-[12px] sm:text-sm"
-              onClick={handleCreateTable}
-            >
+            <Button size="md" className="w-full !bg-[#B90007] text-[12px] sm:text-sm" onClick={handleCreateTable}>
               Criar Mesa
             </Button>
           </div>
         </section>
       </div>
-    </main>
+    </div>
   );
 }
