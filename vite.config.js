@@ -4,13 +4,17 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
+  base: "/", // seu domínio raiz
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
   },
   build: {
-    outDir: 'public/dist', // build vai para /public/dist dentro do release
-    emptyOutDir: true,     // limpa o dist antigo dentro de public
+    outDir: "dist",      // build vai para /dist
+    emptyOutDir: true,   // limpa build antigo
+    rollupOptions: {
+      input: path.resolve(__dirname, "index.html"), // entrypoint correto
+    },
   },
 })
