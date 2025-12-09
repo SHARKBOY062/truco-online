@@ -1,12 +1,21 @@
 // src/services/api.js
 import axios from "axios";
 
-// Usa variável de ambiente se existir, senão fallback local
+/**
+ * PRODUÇÃO — dominio.com/api
+ * DESENVOLVIMENTO — localhost:8000/api
+ */
+const baseURL =
+  import.meta.env.VITE_API_URL ||
+  (window.location.hostname.includes("localhost")
+    ? "http://localhost:8000/api"
+    : "https://arenatruco.com/api");
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
+  baseURL: baseURL,
 });
 
-// Intercepta **todas** requisições e injeta o token
+// Injeta token em TODAS as requisições
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -15,7 +24,6 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // Garante que sempre envia JSON quando necessário
     if (!config.headers["Content-Type"]) {
       config.headers["Content-Type"] = "application/json";
     }
@@ -25,18 +33,14 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptador de respostas (opcional, mas útil)
+// Lida com expiração de token
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Se o token expirou → logout automático
     if (error.response?.status === 401) {
-      console.warn("🔐 Token expirado ou inválido.");
-
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-
-      window.location.href = "/login"; // ou rota que você usa no SPA
+      window.location.href = "/login";
     }
 
     return Promise.reject(error);
