@@ -1,13 +1,41 @@
-import axios from 'axios';
+// src/services/api.js
+import axios from "axios";
 
+/**
+ * PRODUÇÃO — https://arenatruco.com/api
+ * DESENVOLVIMENTO — http://localhost:8000/api
+ * Se houver VITE_API_URL no .env, ele usa.
+ */
 const api = axios.create({
-  baseURL: 'https://seu-backend.com',
+  baseURL:
+    import.meta.env.VITE_API_URL ||
+    (window.location.hostname.includes("localhost")
+      ? "http://localhost:8000/api"
+      : "https://arenatruco.com/api"),
 });
 
+// Intercepta requisições para colocar o token
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
   return config;
 });
+
+// Intercepta respostas (útil para token expirado)
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
+    }
+    return Promise.reject(err);
+  }
+);
 
 export default api;

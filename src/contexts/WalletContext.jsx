@@ -5,21 +5,19 @@ export const WalletContext = createContext();
 
 export function WalletProvider({ children }) {
   const [balance, setBalance] = useState(0);
-  const loadedOnce = useRef(false); // evita chamadas duplicadas
+  const loadedOnce = useRef(false); // evita chamadas duplicadas no StrictMode
 
   async function loadBalance() {
     try {
-      const { data } = await getBalance();
-      setBalance(data.balance ?? 0);
+      const backendBalance = await getBalance(); // já retorna o saldo correto
+      setBalance(backendBalance);
     } catch (err) {
-      console.warn('Backend indisponível, usando fallback');
-      // NÃO LANÇAR ERRO — NÃO SETAR ESTADO EM LOOP
-      setBalance(0); 
+      console.warn('⚠ Backend indisponível — usando fallback 0');
+      setBalance(0);
     }
   }
 
   useEffect(() => {
-    // evita rodar mais de uma vez em modo Strict do React
     if (!loadedOnce.current) {
       loadedOnce.current = true;
       loadBalance();

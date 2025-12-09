@@ -1,21 +1,24 @@
-import api from '../services/axios';
+// src/services/wallet.js
+import api from '../services/api';
 
 // Saldo atual
 export function getBalance() {
-  return api.get('/wallet/balance');
+  return api.get('/user').then((res) => res.data.user.balance);
 }
 
 // Extrato
-export function getTransactions(params = {}) {
-  return api.get('/wallet/transactions', { params });
+export function getTransactions() {
+  return api.get('/extract').then((res) => res.data);
 }
 
-// Criar depósito PIX
+// Criar depósito (AINDA NÃO EXISTE NO BACKEND)
 export function createDeposit(data) {
-  return api.post('/wallet/deposit', data);
+  // precisa existir no backend
+  return api.post('/deposit', data);
 }
 
-// Criar saque
+// Criar saque (AINDA NÃO EXISTE NO BACKEND)
 export function createWithdraw(data) {
-  return api.post('/wallet/withdraw', data);
+  // precisa existir no backend
+  return api.post('/withdraw', data);
 }
