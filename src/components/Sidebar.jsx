@@ -6,7 +6,7 @@ import ComingSoonModal from "../components/Modal/ComingSoonModal";
 import GoodTime from "../assets/fonts/GoodTime.ttf";
 
 export default function Sidebar({ open, onClose }) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth(); // ⬅️ adiciona logout aqui
   const isLogged = !!user;
 
   const [openGeneral, setOpenGeneral] = useState(true);
@@ -17,9 +17,7 @@ export default function Sidebar({ open, onClose }) {
 
   const toggleFavorite = (item) => {
     setFavorites((prev) =>
-      prev.includes(item)
-        ? prev.filter((i) => i !== item)
-        : [...prev, item]
+      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
     );
   };
 
@@ -30,7 +28,7 @@ export default function Sidebar({ open, onClose }) {
 
   return (
     <>
-      {/* Fonte GoodTime aplicada */}
+      {/* Fonte GoodTime registrada (se quiser usar em títulos depois) */}
       <style>
         {`
           @font-face {
@@ -70,110 +68,175 @@ export default function Sidebar({ open, onClose }) {
       >
         <div
           className={`
-            h-full overflow-y-auto px-6 pt-24 pb-10 custom-scrollbar
+            h-full overflow-y-auto px-5 pt-20 pb-6 custom-scrollbar
             transition-opacity duration-400
             ${open ? "opacity-100" : "opacity-0 pointer-events-none"}
           `}
-          style={{ fontFamily: "GoodTime" }}
+          style={{
+            fontFamily:
+              "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          }}
         >
           {/* PERFIL — SOMENTE QUANDO LOGADO */}
           {isLogged && (
             <>
-              <div className="flex items-center gap-4 mb-6">
-                <img
-                  src={avatarUrl}
-                  className="w-12 h-12 rounded-full border border-gray-700 shadow-lg bg-[#111]"
-                  alt="Avatar"
-                />
+              <div className="flex items-center gap-3 mb-5">
+                <div className="relative">
+                  <div className="absolute inset-0 rounded-full blur-md bg-[#B90007]/30 opacity-60" />
+                  <img
+                    src={avatarUrl}
+                    className="relative w-10 h-10 rounded-full border border-gray-700 bg-[#111]"
+                    alt="Avatar"
+                  />
+                </div>
 
-                <div>
-                  <p className="font-semibold text-white text-lg">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">
                     {user.name}
                   </p>
-                  <p className="text-sm text-gray-400">Jogador</p>
+                  <p className="text-[11px] text-gray-400">Jogador</p>
 
-                  <div className="mt-2 w-32 h-2 bg-gray-800 rounded-full overflow-hidden">
+                  <div className="mt-2 w-24 h-1.5 bg-gray-800 rounded-full overflow-hidden">
                     <div className="h-full bg-[#B90007] w-[40%] shadow-[0_0_8px_rgba(185,0,7,1)]" />
                   </div>
                 </div>
               </div>
-
-              <div className="w-full h-px bg-gray-800/50 mb-6" />
             </>
           )}
 
           {/* ------------------- MENU GERAL ------------------- */}
           <button
             onClick={() => setOpenGeneral((s) => !s)}
-            className="flex justify-between w-full text-left text-gray-400 mb-2 uppercase text-[11px] tracking-widest font-semibold hover:text-[#B90007] transition"
+            className="
+              flex items-center justify-between w-full
+              py-3 px-1
+              bg-black/60 border-y border-[#111722]
+              text-left text-gray-400
+              uppercase text-[11px] tracking-[0.18em] font-medium
+              hover:text-[#B90007]
+              transition-colors
+            "
           >
-            Geral
-            <i className={`ri-arrow-down-s-line transition ${openGeneral ? "" : "rotate-180"}`} />
+            <span>GERAL</span>
+            <i
+              className={`
+                ri-arrow-down-s-line text-base
+                transition-transform duration-300
+                ${openGeneral ? "" : "rotate-180"}
+              `}
+            />
           </button>
 
           {openGeneral && (
-            <ul className="space-y-3 text-[15px] pl-1 font-medium mb-4">
+            <ul className="space-y-1.5 text-[13px] font-normal mt-2 mb-4">
+              <li>
+                <Link
+                  to="/"
+                  className="
+                    flex items-center gap-3 py-1.5 px-1
+                    text-gray-300
+                    hover:text-[#B90007]
+                    transition-colors
+                  "
+                >
+                  <i className="ri-home-5-line text-lg text-gray-400" />
+                  <span>Início</span>
+                </Link>
+              </li>
 
-              <Link to="/" className="flex items-center gap-3 hover:text-[#B90007] transition">
-                <i className="ri-home-5-line text-xl text-gray-400" />
-                Início
-              </Link>
-
-              {/* SOMENTE QUANDO LOGADO */}
               {isLogged && (
                 <>
-                  <Link
-                    to="/account"
-                    className="flex items-center gap-3 hover:text-[#B90007] transition"
-                  >
-                    <i className="ri-user-3-line text-xl text-gray-400" />
-                    Minha Conta
-                  </Link>
+                  <li>
+                    <Link
+                      to="/account"
+                      className="
+                        flex items-center gap-3 py-1.5 px-1
+                        text-gray-300
+                        hover:text-[#B90007]
+                        transition-colors
+                      "
+                    >
+                      <i className="ri-user-3-line text-lg text-gray-400" />
+                      <span>Minha Conta</span>
+                    </Link>
+                  </li>
 
-                  <Link
-                    to="/wallet/transactions"
-                    className="flex items-center gap-3 hover:text-[#B90007] transition"
-                  >
-                    <i className="ri-file-list-3-line text-xl text-gray-400" />
-                    Transações
-                  </Link>
+                  <li>
+                    <Link
+                      to="/wallet/transactions"
+                      className="
+                        flex items-center gap-3 py-1.5 px-1
+                        text-gray-300
+                        hover:text-[#B90007]
+                        transition-colors
+                      "
+                    >
+                      <i className="ri-file-list-3-line text-lg text-gray-400" />
+                      <span>Transações</span>
+                    </Link>
+                  </li>
                 </>
               )}
 
-              {/* VISÍVEL PARA TODOS */}
-              <li
-                onClick={() => setShowComingSoon(true)}
-                className="flex items-center gap-3 hover:text-[#B90007] cursor-pointer transition"
-              >
-                <i className="ri-gift-line text-xl text-gray-400" />
-                Indique e Ganhe
+              <li>
+                <button
+                  type="button"
+                  onClick={() => setShowComingSoon(true)}
+                  className="
+                    flex w-full items-center gap-3 py-1.5 px-1
+                    text-left text-gray-300
+                    hover:text-[#B90007]
+                    transition-colors
+                  "
+                >
+                  <i className="ri-gift-line text-lg text-gray-400" />
+                  <span>Indique e Ganhe</span>
+                </button>
               </li>
             </ul>
           )}
 
-          <div className="w-full h-px bg-gray-800/50 my-4" />
-
           {/* ------------------- CATEGORIAS ------------------- */}
           <button
             onClick={() => setOpenCategories((s) => !s)}
-            className="flex justify-between w-full text-left text-gray-400 mb-2 uppercase text-[11px] tracking-widest font-semibold hover:text-[#B90007] transition"
+            className="
+              mt-1
+              flex items-center justify-between w-full
+              py-3 px-1
+              bg-black/60 border-y border-[#111722]
+              text-left text-gray-400
+              uppercase text-[11px] tracking-[0.18em] font-medium
+              hover:text-[#B90007]
+              transition-colors
+            "
           >
-            Categorias de Truco
-            <i className={`ri-arrow-down-s-line transition ${openCategories ? "" : "rotate-180"}`} />
+            <span>CATEGORIAS DE TRUCO</span>
+            <i
+              className={`
+                ri-arrow-down-s-line text-base
+                transition-transform duration-300
+                ${openCategories ? "" : "rotate-180"}
+              `}
+            />
           </button>
 
           {openCategories && (
-            <ul className="space-y-3 pl-1 text-[15px] font-medium mb-4">
-              {/* ROTA REAL */}
-              <Link
-                to="/game/truco/paulista"
-                className="flex items-center gap-3 hover:text-[#B90007] transition"
-              >
-                <i className="ri-sword-line text-xl text-gray-400" />
-                Truco Paulista
-              </Link>
+            <ul className="space-y-1.5 text-[13px] font-normal mt-2 mb-4">
+              <li>
+                <Link
+                  to="/game/truco/paulista"
+                  className="
+                    flex items-center gap-3 py-1.5 px-1
+                    text-gray-300
+                    hover:text-[#B90007]
+                    transition-colors
+                  "
+                >
+                  <i className="ri-sword-line text-lg text-gray-400" />
+                  <span>Truco Paulista</span>
+                </Link>
+              </li>
 
-              {/* EM BREVE */}
               {[
                 "Truco Mineiro",
                 "Truco Gaudério",
@@ -182,35 +245,58 @@ export default function Sidebar({ open, onClose }) {
                 "Truco Amazonense",
                 "Truco Mato-Grossense",
               ].map((item) => (
-                <li key={item} className="flex items-center gap-3 hover:text-[#B90007] transition">
-                  <i className="ri-sword-line text-xl text-gray-400" />
-                  {item}
+                <li key={item}>
+                  <button
+                    type="button"
+                    className="
+                      flex w-full items-center gap-3 py-1.5 px-1
+                      text-left text-gray-300
+                      hover:text-[#B90007]
+                      transition-colors
+                    "
+                  >
+                    <i className="ri-sword-line text-lg text-gray-400" />
+                    <span>{item}</span>
+                  </button>
                 </li>
               ))}
             </ul>
           )}
 
-          <div className="w-full h-px bg-gray-800/50 my-4" />
-
           {/* ------------------- STAKES ------------------- */}
           <button
             onClick={() => setOpenStakes((s) => !s)}
-            className="flex justify-between w-full text-left text-gray-400 mb-2 uppercase text-[11px] tracking-widest font-semibold hover:text-[#B90007] transition"
+            className="
+              mt-1
+              flex items-center justify-between w-full
+              py-3 px-1
+              bg-black/60 border-y border-[#111722]
+              text-left text-gray-400
+              uppercase text-[11px] tracking-[0.18em] font-medium
+              hover:text-[#B90007]
+              transition-colors
+            "
           >
-            Truco por Aposta
-            <i className={`ri-arrow-down-s-line transition ${openStakes ? "" : "rotate-180"}`} />
+            <span>TRUCO POR APOSTA</span>
+            <i
+              className={`
+                ri-arrow-down-s-line text-base
+                transition-transform duration-300
+                ${openStakes ? "" : "rotate-180"}
+              `}
+            />
           </button>
 
           {openStakes && (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2 mt-3">
               {[2, 5, 10, 20, 40, 50, 80, 100].map((stake) => (
                 <button
                   key={stake}
                   className="
-                    py-2.5 px-3 text-[14px] font-semibold rounded-lg
+                    py-2 text-[13px] font-semibold rounded-lg
                     bg-[#050505] border border-gray-700
                     hover:border-[#B90007] hover:text-[#ffb0b0] hover:bg-black
-                    transition
+                    transition-all duration-200
                   "
                 >
                   R$ {stake}
@@ -218,6 +304,77 @@ export default function Sidebar({ open, onClose }) {
               ))}
             </div>
           )}
+
+          {/* ------------------- AJUDA / SUPORTE ------------------- */}
+          <div className="mt-8 pt-4 border-t border-gray-800/40">
+            <span className="block text-[11px] uppercase tracking-[0.18em] text-gray-500 mb-3">
+              AJUDA & SUPORTE
+            </span>
+
+            <ul className="space-y-1.5 text-[13px] text-gray-300">
+              <li>
+                <button
+                  type="button"
+                  className="
+                    flex w-full items-center gap-3 py-1.5 px-1
+                    text-left
+                    hover:text-[#B90007]
+                    transition-colors
+                  "
+                >
+                  <i className="ri-headphone-line text-lg text-gray-400" />
+                  <span>Suporte Ao Vivo</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  className="
+                    flex w-full items-center gap-3 py-1.5 px-1
+                    text-left
+                    hover:text-[#B90007]
+                    transition-colors
+                  "
+                >
+                  <i className="ri-medal-line text-lg text-gray-400" />
+                  <span>Promoções</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  className="
+                    flex w-full items-center gap-3 py-1.5 px-1
+                    text-left
+                    hover:text-[#B90007]
+                    transition-colors
+                  "
+                >
+                  <i className="ri-user-follow-line text-lg text-gray-400" />
+                  <span>Indique Um Amigo</span>
+                </button>
+              </li>
+
+              {/* Sair só aparece quando logado */}
+              {isLogged && (
+                <li>
+                  <button
+                    type="button"
+                    onClick={logout}
+                    className="
+                      flex w-full items-center gap-3 py-1.5 px-1
+                      text-left
+                      hover:text-[#B90007]
+                      transition-colors
+                    "
+                  >
+                    <i className="ri-logout-box-line text-lg text-gray-400" />
+                    <span>Sair</span>
+                  </button>
+                </li>
+              )}
+            </ul>
+          </div>
         </div>
       </aside>
     </>
