@@ -28,6 +28,22 @@ const stakes = [
   10000, 20000, 50000,
 ];
 
+// ---- Função usada para animar carregamento das imagens ---- //
+function useSmoothImage() {
+  const [loaded, setLoaded] = useState(false);
+  const props = {
+    loading: "lazy",
+    decoding: "async",
+    fetchpriority: "low",
+    onLoad: () => setLoaded(true),
+    style: {
+      opacity: loaded ? 1 : 0,
+      transition: "opacity .35s ease"
+    }
+  };
+  return props;
+}
+
 export default function Lobby() {
   const navigate = useNavigate();
 
@@ -148,61 +164,65 @@ export default function Lobby() {
                 w-full max-w-full
               "
             >
-              {trucoModes.map((m) => (
-                <article key={m.name} className="flex-shrink-0">
-                  <div className="w-[100px] sm:w-[135px] md:w-[165px]">
-                    <div className="relative w-full h-28 sm:h-36 md:h-44 rounded-2xl overflow-hidden bg-[#050505]">
-                      <img
-                        src={m.img}
-                        alt={m.name}
-                        className="w-full h-full object-cover rounded-2xl"
-                        draggable={false}
-                      />
+              {trucoModes.map((m) => {
+                const imgProps = useSmoothImage();
+                return (
+                  <article key={m.name} className="flex-shrink-0">
+                    <div className="w-[100px] sm:w-[135px] md:w-[165px]">
+                      <div className="relative w-full h-28 sm:h-36 md:h-44 rounded-2xl overflow-hidden bg-[#050505]">
+                        <img
+                          src={m.img}
+                          alt={m.name}
+                          {...imgProps}
+                          className="w-full h-full object-cover rounded-2xl"
+                          draggable={false}
+                        />
 
-                      <div
-                        className={`
-                          absolute inset-0 rounded-2xl border
-                          ${
-                            selectedMode === m.name
-                              ? "border-[#B90007]/90 shadow-[0_0_8px_rgba(185,0,7,0.9)]"
-                              : "border-white/5 hover:border-[#B90007]/80"
-                          }
-                          transition-colors duration-200
-                        `}
-                      />
+                        <div
+                          className={`
+                            absolute inset-0 rounded-2xl border
+                            ${
+                              selectedMode === m.name
+                                ? "border-[#B90007]/90 shadow-[0_0_8px_rgba(185,0,7,0.9)]"
+                                : "border-white/5 hover:border-[#B90007]/80"
+                            }
+                            transition-colors duration-200
+                          `}
+                        />
 
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-2 py-1">
-                        <p className="text-[9px] sm:text-[10px] font-semibold text-center text-soft-shadow">
-                          {m.name}
-                        </p>
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-2 py-1">
+                          <p className="text-[9px] sm:text-[10px] font-semibold text-center text-soft-shadow">
+                            {m.name}
+                          </p>
+                        </div>
+
+                        {/* mobile */}
+                        <button
+                          type="button"
+                          className="sm:hidden absolute inset-0"
+                          onClick={goToTrucoPaulista}
+                          aria-label={`Entrar em ${m.name}`}
+                        />
+
+                        {/* desktop */}
+                        <button
+                          type="button"
+                          className="
+                            hidden sm:flex absolute inset-0 items-center justify-center
+                            opacity-0 hover:opacity-100 transition-opacity duration-200
+                            bg-black/35
+                          "
+                          onClick={goToTrucoPaulista}
+                        >
+                          <Button size="xs" className="!bg-[#B90007] !px-3 !py-1 text-[10px]">
+                            Jogar
+                          </Button>
+                        </button>
                       </div>
-
-                      {/* mobile */}
-                      <button
-                        type="button"
-                        className="sm:hidden absolute inset-0"
-                        onClick={goToTrucoPaulista}
-                        aria-label={`Entrar em ${m.name}`}
-                      />
-
-                      {/* desktop */}
-                      <button
-                        type="button"
-                        className="
-                          hidden sm:flex absolute inset-0 items-center justify-center
-                          opacity-0 hover:opacity-100 transition-opacity duration-200
-                          bg-black/35
-                        "
-                        onClick={goToTrucoPaulista}
-                      >
-                        <Button size="xs" className="!bg-[#B90007] !px-3 !py-1 text-[10px]">
-                          Jogar
-                        </Button>
-                      </button>
                     </div>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -259,46 +279,50 @@ export default function Lobby() {
                 w-full max-w-full
               "
             >
-              {exampleTables.map((t) => (
-                <article key={t.id} className="flex-shrink-0">
-                  <div className="w-[110px] sm:w-[145px] md:w-[175px]">
-                    <div className="relative w-full h-30 sm:h-38 md:h-46 rounded-2xl overflow-hidden bg-[#050505]">
-                      <img
-                        src={t.img}
-                        alt={t.mode}
-                        className="absolute inset-0 w-full h-full object-cover rounded-2xl"
-                        draggable={false}
-                      />
+              {exampleTables.map((t) => {
+                const imgProps = useSmoothImage();
+                return (
+                  <article key={t.id} className="flex-shrink-0">
+                    <div className="w-[110px] sm:w-[145px] md:w-[175px]">
+                      <div className="relative w-full h-30 sm:h-38 md:h-46 rounded-2xl overflow-hidden bg-[#050505]">
+                        <img
+                          src={t.img}
+                          alt={t.mode}
+                          {...imgProps}
+                          className="absolute inset-0 w-full h-full object-cover rounded-2xl"
+                          draggable={false}
+                        />
 
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-2.5 py-1.5 rounded-b-2xl">
-                        <p className="font-bold text-[10px] sm:text-[11px] leading-tight text-soft-shadow">
-                          Mesa #{t.id}
-                        </p>
-                        <p className="text-[9px] sm:text-[10px] text-gray-200 truncate text-soft-shadow">{t.mode}</p>
-                        <p className="text-[9px] sm:text-[10px] text-gray-200">
-                          Stake: <span className="font-semibold">R$ {t.stake}</span>
-                        </p>
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-2.5 py-1.5 rounded-b-2xl">
+                          <p className="font-bold text-[10px] sm:text-[11px] leading-tight text-soft-shadow">
+                            Mesa #{t.id}
+                          </p>
+                          <p className="text-[9px] sm:text-[10px] text-gray-200 truncate text-soft-shadow">{t.mode}</p>
+                          <p className="text-[9px] sm:text-[10px] text-gray-200">
+                            Stake: <span className="font-semibold">R$ {t.stake}</span>
+                          </p>
 
-                        <div className="hidden sm:block mt-1">
-                          <Button size="xs" className="w-full !bg-[#B90007] text-[10px]" onClick={goToTrucoPaulista}>
-                            Entrar
-                          </Button>
+                          <div className="hidden sm:block mt-1">
+                            <Button size="xs" className="w-full !bg-[#B90007] text-[10px]" onClick={goToTrucoPaulista}>
+                              Entrar
+                            </Button>
+                          </div>
                         </div>
+
+                        {/* mobile */}
+                        <button
+                          type="button"
+                          className="sm:hidden absolute inset-0"
+                          onClick={goToTrucoPaulista}
+                          aria-label={`Entrar na mesa ${t.id}`}
+                        />
+
+                        <div className="absolute inset-0 rounded-2xl border border-white/5 hover:border-[#B90007]/80 transition-colors" />
                       </div>
-
-                      {/* mobile */}
-                      <button
-                        type="button"
-                        className="sm:hidden absolute inset-0"
-                        onClick={goToTrucoPaulista}
-                        aria-label={`Entrar na mesa ${t.id}`}
-                      />
-
-                      <div className="absolute inset-0 rounded-2xl border border-white/5 hover:border-[#B90007]/80 transition-colors" />
                     </div>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>
