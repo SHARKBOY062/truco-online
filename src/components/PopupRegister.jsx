@@ -16,6 +16,18 @@ export default function PopupRegister({ onClose, onLogin }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // ======================
+  // FUNÇÃO DE MÁSCARA CPF
+  // ======================
+  function maskCpf(value) {
+    return value
+      .replace(/\D/g, "")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
+      .slice(0, 14);
+  }
+
   async function handleRegister(e) {
     e.preventDefault();
     setError("");
@@ -36,20 +48,17 @@ export default function PopupRegister({ onClose, onLogin }) {
         password_confirmation: confirmPass,
       });
 
-      onLogin(); // abre login após registrar
+      onLogin();
     } catch (err) {
       console.log(err.response?.data);
-
       const backend = err.response?.data;
 
-      // 1. Mostra a mensagem principal do Laravel (traduzida pelo laravel-lang)
       if (backend?.message) {
         setError(backend.message);
         setLoading(false);
         return;
       }
 
-      // 2. Exibe o primeiro erro da lista "errors"
       if (backend?.errors) {
         const firstError = Object.values(backend.errors)[0][0];
         setError(firstError);
@@ -66,14 +75,14 @@ export default function PopupRegister({ onClose, onLogin }) {
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
 
-      {/* REGISTRO DA FONTE */}
+      {/* FONTE */}
       <style>
         {`
-        @font-face {
-          font-family: 'GoodTime';
-          src: url(${GoodTime}) format('truetype');
-        }
-      `}
+          @font-face {
+            font-family: 'GoodTime';
+            src: url(${GoodTime}) format('truetype');
+          }
+        `}
       </style>
 
       {/* Overlay */}
@@ -130,24 +139,40 @@ export default function PopupRegister({ onClose, onLogin }) {
             </label>
             <input
               type="text"
-              className="w-full mt-2 px-4 py-3.5 bg-[#1A1D24] border border-[#2d2f36] rounded-xl text-white focus:border-[#B90007]"
+              className="
+                w-full mt-2 px-4 py-3.5
+                bg-[#1A1D24] border border-[#2d2f36]
+                rounded-xl text-white
+                focus:border-[#B90007]
+                focus:ring-2 focus:ring-[#b9000750]
+                transition-all
+              "
               style={{ fontFamily: "Inter, sans-serif" }}
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
           </div>
 
-          {/* CPF */}
+          {/* CPF – COM MÁSCARA */}
           <div>
             <label className="text-sm text-gray-300" style={{ fontFamily: "GoodTime" }}>
               CPF
             </label>
             <input
               type="text"
-              className="w-full mt-2 px-4 py-3.5 bg-[#1A1D24] border border-[#2d2f36] rounded-xl text-white focus:border-[#B90007]"
+              maxLength={14}
+              className="
+                w-full mt-2 px-4 py-3.5
+                bg-[#1A1D24] border border-[#2d2f36]
+                rounded-xl text-white
+                focus:border-[#B90007]
+                focus:ring-2 focus:ring-[#b9000750]
+                transition-all
+              "
               style={{ fontFamily: "Inter, sans-serif" }}
               value={cpf}
-              onChange={(e) => setCpf(e.target.value)}
+              onChange={(e) => setCpf(maskCpf(e.target.value))}
+              placeholder="000.000.000-00"
             />
           </div>
 
@@ -158,7 +183,14 @@ export default function PopupRegister({ onClose, onLogin }) {
             </label>
             <input
               type="email"
-              className="w-full mt-2 px-4 py-3.5 bg-[#1A1D24] border border-[#2d2f36] rounded-xl text-white focus:border-[#B90007]"
+              className="
+                w-full mt-2 px-4 py-3.5
+                bg-[#1A1D24] border border-[#2d2f36]
+                rounded-xl text-white
+                focus:border-[#B90007]
+                focus:ring-2 focus:ring-[#b9000750]
+                transition-all
+              "
               style={{ fontFamily: "Inter, sans-serif" }}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -174,7 +206,14 @@ export default function PopupRegister({ onClose, onLogin }) {
             <div className="relative mt-2">
               <input
                 type={showPass ? "text" : "password"}
-                className="w-full px-4 py-3.5 bg-[#1A1D24] border border-[#2d2f36] rounded-xl text-white focus:border-[#B90007]"
+                className="
+                  w-full px-4 py-3.5
+                  bg-[#1A1D24] border border-[#2d2f36]
+                  rounded-xl text-white
+                  focus:border-[#B90007]
+                  focus:ring-2 focus:ring-[#b9000750]
+                  transition-all
+                "
                 style={{ fontFamily: "Inter, sans-serif" }}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -199,7 +238,14 @@ export default function PopupRegister({ onClose, onLogin }) {
             <div className="relative mt-2">
               <input
                 type={showConfirmPass ? "text" : "password"}
-                className="w-full px-4 py-3.5 bg-[#1A1D24] border border-[#2d2f36] rounded-xl text-white focus:border-[#B90007]"
+                className="
+                  w-full px-4 py-3.5
+                  bg-[#1A1D24] border border-[#2d2f36]
+                  rounded-xl text-white
+                  focus:border-[#B90007]
+                  focus:ring-2 focus:ring-[#b9000750]
+                  transition-all
+                "
                 style={{ fontFamily: "Inter, sans-serif" }}
                 value={confirmPass}
                 onChange={(e) => setConfirmPass(e.target.value)}
