@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import QRCode from "react-qr-code";
 
@@ -6,6 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export default function Deposit() {
   const navigate = useNavigate();
+  const intervalRef = useRef(null);
 
   const [step, setStep] = useState(1);
   const [amount, setAmount] = useState("");
@@ -40,21 +41,21 @@ export default function Deposit() {
   useEffect(() => {
     if (step !== 3 || timer <= 0) return;
 
-    const i = setInterval(() => {
-      setTimer((t) => t - 1);
+    const t = setInterval(() => {
+      setTimer((v) => v - 1);
     }, 1000);
 
-    return () => clearInterval(i);
+    return () => clearInterval(t);
   }, [step, timer]);
 
   const minutes = String(Math.floor(timer / 60)).padStart(2, "0");
   const seconds = String(timer % 60).padStart(2, "0");
 
-  /* ================= POLLING ================= */
+  /* ================= POLLING (ROBUSTO) ================= */
   useEffect(() => {
     if (!externalId || step !== 3) return;
 
-    const interval = setInterval(async () => {
+    intervalRef.current = setInterval(async () => {
       try {
         const res = await fetch(
           `${API_URL}/transactions/${externalId}`,
@@ -68,19 +69,27 @@ export default function Deposit() {
 
         const data = await res.json();
 
-        if (data.status === "paid") {
-          clearInterval(interval);
+        if (data?.status === "paid") {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
 
-          // 🔊 som opcional
+          // 🔊 Som opcional
           new Audio("/sounds/success.mp3").play().catch(() => {});
 
-          // 🚀 FECHA IMEDIATAMENTE E VOLTA PRO LOBBY
+          // 🚀 FECHA DEFINITIVAMENTE
           navigate("/", { replace: true });
         }
-      } catch {}
-    }, 4000);
+      } catch {
+        // silêncio proposital
+      }
+    }, 3000);
 
-    return () => clearInterval(interval);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
   }, [externalId, step, navigate]);
 
   /* ================= GERAR PIX ================= */
@@ -117,15 +126,21 @@ export default function Deposit() {
     setStep(3);
   }
 
+  function copyPix() {
+    navigator.clipboard.writeText(pixCode);
+    alert("Código Pix copiado!");
+  }
+
   /* ================= UI ================= */
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[9999] px-4">
-      <div className="w-full max-w-lg bg-[#050505] border border-[#262626] rounded-2xl p-6 relative animate-fade-in">
+      <div className="w-full max-w-lg bg-[#050505] border border-[#262626] rounded-2xl p-6 relative animate-fade-in shadow-[0_30px_90px_rgba(0,0,0,0.95)]">
 
-        {/* FECHAR */}
+        {/* FECHAR MANUAL */}
         <button
           onClick={() => navigate("/", { replace: true })}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl"
+          className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full
+                     text-gray-400 hover:text-white hover:bg-[#111111] transition"
         >
           ✕
         </button>
@@ -154,24 +169,15 @@ export default function Deposit() {
               Detalhes do pagamento
             </h2>
 
-            <input
-              disabled
-              value={cpf}
-              className="w-full bg-[#090909] border border-[#262626] rounded-lg px-4 py-3 mb-3 text-sm text-gray-400"
-            />
-
-            <input
-              disabled
-              value={name}
-              className="w-full bg-[#090909] border border-[#262626] rounded-lg px-4 py-3 mb-4 text-sm text-gray-400"
-            />
+            <input disabled value={cpf} className="w-full mb-3 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm text-gray-400" />
+            <input disabled value={name} className="w-full mb-4 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm text-gray-400" />
 
             <div className="flex gap-3 mb-4">
               {quickValues.map((v) => (
                 <button
                   key={v}
                   onClick={() => setAmount(v)}
-                  className={`flex-1 py-3 rounded-lg border font-bold ${
+                  className={`flex-1 py-3 rounded-lg font-bold border ${
                     Number(amount) === v
                       ? "bg-[#B90007] text-white border-[#B90007]"
                       : "bg-[#090909] border-[#262626]"
@@ -187,7 +193,7 @@ export default function Deposit() {
               placeholder="Outro valor"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full bg-[#090909] border border-[#262626] rounded-lg px-4 py-3 mb-4 text-sm"
+              className="w-full mb-4 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm"
             />
 
             <button
@@ -214,10 +220,22 @@ export default function Deposit() {
               {minutes}:{seconds}
             </p>
 
-            <div className="flex justify-center mb-5">
+            <div className="flex justify-center mb-4">
               <div className="bg-white p-3 rounded-lg">
                 <QRCode value={pixCode} size={180} />
               </div>
+            </div>
+
+            {/* 🔥 PIX COPIA E COLA (VOLTOU) */}
+            <div className="bg-[#090909] border border-[#262626] rounded-lg p-3">
+              <p className="text-xs text-gray-400 mb-1">Pix Copia e Cola</p>
+              <p className="break-all text-xs mb-3">{pixCode}</p>
+              <button
+                onClick={copyPix}
+                className="w-full bg-[#B90007] py-2 rounded-lg font-bold"
+              >
+                Copiar código
+              </button>
             </div>
           </>
         )}
