@@ -3,6 +3,16 @@ import { useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+/**
+ * 🔥 MAPEAMENTO CORRETO PARA PIXIONPAY
+ */
+const PIX_TYPE_MAP = {
+  cpf: "CPF",
+  email: "EMAIL",
+  phone: "PHONE",
+  random: "EVP", // chave aleatória
+};
+
 const PIX_TYPES = [
   { value: "cpf", label: "CPF" },
   { value: "email", label: "E-mail" },
@@ -60,6 +70,16 @@ export default function Withdraw() {
 
     setLoading(true);
 
+    const payload = {
+      amount: Number(amount),
+      client: {
+        name,
+        document: cpf.replace(/\D+/g, ""),
+        pix_key: pixKey,
+        pix_type: PIX_TYPE_MAP[pixType], // 🔥 CORRETO
+      },
+    };
+
     const res = await fetch(`${API_URL}/withdraws/pix`, {
       method: "POST",
       headers: {
@@ -67,15 +87,7 @@ export default function Withdraw() {
         Accept: "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-      body: JSON.stringify({
-        amount: Number(amount),
-        client: {
-          name,
-          document: cpf,
-          pix_key: pixKey,
-          pix_type: pixType,
-        },
-      }),
+      body: JSON.stringify(payload),
     });
 
     const data = await res.json();
@@ -87,7 +99,7 @@ export default function Withdraw() {
 
     /**
      * ✅ Fecha popup e vai para extrato
-     * ⏳ Status será atualizado pelo webhook
+     * ⏳ Status final via webhook
      */
     navigate("/wallet/transactions", { replace: true });
   }
@@ -97,7 +109,7 @@ export default function Withdraw() {
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[9999] px-4">
       <div className="w-full max-w-md bg-[#050505] border border-[#262626] rounded-2xl p-6 relative animate-fade-in shadow-[0_30px_90px_rgba(0,0,0,0.95)]">
 
-        {/* FECHAR — AGORA FUNCIONA SEMPRE */}
+        {/* FECHAR */}
         <button
           onClick={() => navigate("/", { replace: true })}
           className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full
@@ -110,26 +122,10 @@ export default function Withdraw() {
 
         <h2 className="text-2xl font-bold mb-4">Saque via Pix</h2>
 
-        {/* CPF */}
-        <input
-          disabled
-          value={cpf}
-          className="w-full mb-3 p-3 bg-[#090909] border border-[#262626]
-                     rounded-lg text-sm text-gray-400"
-        />
+        <input disabled value={cpf} className="w-full mb-3 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm text-gray-400" />
+        <input disabled value={name} className="w-full mb-4 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm text-gray-400" />
 
-        {/* NOME */}
-        <input
-          disabled
-          value={name}
-          className="w-full mb-4 p-3 bg-[#090909] border border-[#262626]
-                     rounded-lg text-sm text-gray-400"
-        />
-
-        {/* TIPO DE CHAVE */}
-        <label className="text-xs text-gray-400 mb-1 block">
-          Tipo da chave Pix
-        </label>
+        <label className="text-xs text-gray-400 mb-1 block">Tipo da chave Pix</label>
 
         <select
           value={pixType}
@@ -137,8 +133,7 @@ export default function Withdraw() {
             setPixType(e.target.value);
             setPixKey("");
           }}
-          className="w-full mb-3 p-3 bg-[#090909] border border-[#262626]
-                     rounded-lg text-sm focus:border-[#B90007] transition"
+          className="w-full mb-3 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm"
         >
           {PIX_TYPES.map((t) => (
             <option key={t.value} value={t.value}>
@@ -147,7 +142,6 @@ export default function Withdraw() {
           ))}
         </select>
 
-        {/* CHAVE PIX */}
         <input
           placeholder={
             pixType === "cpf"
@@ -160,26 +154,21 @@ export default function Withdraw() {
           }
           value={pixKey}
           onChange={(e) => handlePixKeyChange(e.target.value)}
-          className="w-full mb-4 p-3 bg-[#090909] border border-[#262626]
-                     rounded-lg text-sm focus:border-[#B90007] transition"
+          className="w-full mb-4 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm"
         />
 
-        {/* VALOR */}
         <input
           type="number"
           placeholder="Valor do saque"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="w-full mb-5 p-3 bg-[#090909] border border-[#262626]
-                     rounded-lg text-sm focus:border-[#B90007] transition"
+          className="w-full mb-5 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm"
         />
 
         <button
           onClick={handleWithdraw}
           disabled={loading}
-          className="w-full bg-[#B90007] py-3 rounded-lg font-bold
-                     hover:bg-[#e01515] transition
-                     disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-[#B90007] py-3 rounded-lg font-bold disabled:opacity-50"
         >
           {loading ? "Processando..." : "Solicitar saque"}
         </button>
