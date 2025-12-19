@@ -79,7 +79,6 @@ export default function Withdraw() {
     });
 
     const data = await res.json();
-
     setLoading(false);
 
     if (!res.ok) {
@@ -87,9 +86,8 @@ export default function Withdraw() {
     }
 
     /**
-     * ✅ FECHA POPUP IMEDIATAMENTE
-     * 📄 REDIRECIONA PARA EXTRATO
-     * ⏳ STATUS SERÁ ATUALIZADO PELO WEBHOOK
+     * ✅ Fecha popup e vai para extrato
+     * ⏳ Status será atualizado pelo webhook
      */
     navigate("/wallet/transactions", { replace: true });
   }
@@ -97,13 +95,15 @@ export default function Withdraw() {
   /* ================= UI ================= */
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[9999] px-4">
-      <div className="w-full max-w-md bg-[#050505] border border-[#262626] rounded-2xl p-6 animate-fade-in relative">
+      <div className="w-full max-w-md bg-[#050505] border border-[#262626] rounded-2xl p-6 relative animate-fade-in shadow-[0_30px_90px_rgba(0,0,0,0.95)]">
 
-        {/* FECHAR */}
+        {/* FECHAR — AGORA FUNCIONA SEMPRE */}
         <button
-          onClick={() => navigate(-1)}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl"
-          disabled={loading}
+          onClick={() => navigate("/", { replace: true })}
+          className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full
+                     text-gray-400 hover:text-white hover:bg-[#111111]
+                     transition active:scale-95"
+          title="Fechar"
         >
           ✕
         </button>
@@ -114,14 +114,16 @@ export default function Withdraw() {
         <input
           disabled
           value={cpf}
-          className="w-full mb-3 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm text-gray-400"
+          className="w-full mb-3 p-3 bg-[#090909] border border-[#262626]
+                     rounded-lg text-sm text-gray-400"
         />
 
         {/* NOME */}
         <input
           disabled
           value={name}
-          className="w-full mb-4 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm text-gray-400"
+          className="w-full mb-4 p-3 bg-[#090909] border border-[#262626]
+                     rounded-lg text-sm text-gray-400"
         />
 
         {/* TIPO DE CHAVE */}
@@ -135,7 +137,8 @@ export default function Withdraw() {
             setPixType(e.target.value);
             setPixKey("");
           }}
-          className="w-full mb-3 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm"
+          className="w-full mb-3 p-3 bg-[#090909] border border-[#262626]
+                     rounded-lg text-sm focus:border-[#B90007] transition"
         >
           {PIX_TYPES.map((t) => (
             <option key={t.value} value={t.value}>
@@ -157,7 +160,8 @@ export default function Withdraw() {
           }
           value={pixKey}
           onChange={(e) => handlePixKeyChange(e.target.value)}
-          className="w-full mb-4 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm"
+          className="w-full mb-4 p-3 bg-[#090909] border border-[#262626]
+                     rounded-lg text-sm focus:border-[#B90007] transition"
         />
 
         {/* VALOR */}
@@ -166,13 +170,16 @@ export default function Withdraw() {
           placeholder="Valor do saque"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="w-full mb-4 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm"
+          className="w-full mb-5 p-3 bg-[#090909] border border-[#262626]
+                     rounded-lg text-sm focus:border-[#B90007] transition"
         />
 
         <button
           onClick={handleWithdraw}
           disabled={loading}
-          className="w-full bg-[#B90007] py-3 rounded-lg font-bold hover:bg-[#e01515] transition disabled:opacity-50"
+          className="w-full bg-[#B90007] py-3 rounded-lg font-bold
+                     hover:bg-[#e01515] transition
+                     disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? "Processando..." : "Solicitar saque"}
         </button>
