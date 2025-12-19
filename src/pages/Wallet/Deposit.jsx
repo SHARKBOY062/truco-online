@@ -18,11 +18,11 @@ export default function Deposit() {
 
   const quickValues = [120, 240, 600];
 
-  /* ================= USUÁRIO LOGADO ================= */
+  /* ================= USER LOGADO ================= */
   useEffect(() => {
     async function loadUser() {
       try {
-        const res = await fetch(`${API_URL}/api/user`, {
+        const res = await fetch(`${API_URL}/user`, {
           headers: {
             Accept: "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -35,9 +35,7 @@ export default function Deposit() {
           setName(data.user.name || "");
           setCpf(data.user.cpf || "");
         }
-      } catch (err) {
-        console.error("Erro ao carregar usuário", err);
-      }
+      } catch {}
     }
 
     loadUser();
@@ -53,14 +51,14 @@ export default function Deposit() {
   const minutes = String(Math.floor(timer / 60)).padStart(2, "0");
   const seconds = String(timer % 60).padStart(2, "0");
 
-  /* ================= POLLING STATUS ================= */
+  /* ================= POLLING ================= */
   useEffect(() => {
     if (!externalId || step !== 3) return;
 
     const interval = setInterval(async () => {
       try {
         const res = await fetch(
-          `${API_URL}/api/transactions/${externalId}`,
+          `${API_URL}/transactions/${externalId}`,
           {
             headers: {
               Accept: "application/json",
@@ -68,8 +66,6 @@ export default function Deposit() {
             },
           }
         );
-
-        if (!res.ok) return;
 
         const data = await res.json();
 
@@ -91,7 +87,7 @@ export default function Deposit() {
     }
 
     try {
-      const res = await fetch(`${API_URL}/api/deposits/pix`, {
+      const res = await fetch(`${API_URL}/deposits/pix`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -141,7 +137,7 @@ export default function Deposit() {
           ✕
         </button>
 
-        {/* STEP 1 */}
+        {/* ================= STEP 1 ================= */}
         {step === 1 && (
           <>
             <h2 className="text-2xl font-bold mb-5">
@@ -158,15 +154,24 @@ export default function Deposit() {
           </>
         )}
 
-        {/* STEP 2 */}
+        {/* ================= STEP 2 ================= */}
         {step === 2 && (
           <>
             <h2 className="text-2xl font-bold mb-4">
               Detalhes do pagamento
             </h2>
 
-            <input disabled value={cpf} className="w-full bg-[#090909] border border-[#262626] rounded-lg px-4 py-3 mb-3 text-sm text-gray-400" />
-            <input disabled value={name} className="w-full bg-[#090909] border border-[#262626] rounded-lg px-4 py-3 mb-4 text-sm text-gray-400" />
+            <input
+              disabled
+              value={cpf}
+              className="w-full bg-[#090909] border border-[#262626] rounded-lg px-4 py-3 mb-3 text-sm text-gray-400"
+            />
+
+            <input
+              disabled
+              value={name}
+              className="w-full bg-[#090909] border border-[#262626] rounded-lg px-4 py-3 mb-4 text-sm text-gray-400"
+            />
 
             <div className="flex gap-3 mb-4">
               {quickValues.map((v) => (
@@ -201,7 +206,7 @@ export default function Deposit() {
           </>
         )}
 
-        {/* STEP 3 */}
+        {/* ================= STEP 3 ================= */}
         {step === 3 && (
           <>
             <h2 className="text-2xl font-bold text-center mb-2">
@@ -209,7 +214,9 @@ export default function Deposit() {
             </h2>
 
             <p className="text-center text-gray-400 mb-3">
-              {status === "pending" ? "Aguardando pagamento..." : "Pagamento aprovado!"}
+              {status === "pending"
+                ? "Aguardando pagamento..."
+                : "Pagamento aprovado!"}
             </p>
 
             <p className="text-center text-[#B90007] text-xl font-extrabold mb-4">
@@ -224,7 +231,9 @@ export default function Deposit() {
 
             <div className="bg-[#090909] border border-[#262626] rounded-lg p-3">
               <p className="text-xs text-gray-400">Pix Copia e Cola</p>
-              <p className="break-all text-xs text-white mt-1">{pixCode}</p>
+              <p className="break-all text-xs text-white mt-1">
+                {pixCode}
+              </p>
 
               <button
                 onClick={copyPix}
@@ -233,6 +242,15 @@ export default function Deposit() {
                 Copiar código
               </button>
             </div>
+
+            {status === "approved" && (
+              <button
+                onClick={() => window.history.back()}
+                className="w-full mt-5 bg-green-600 text-white py-3 rounded-lg font-bold"
+              >
+                Ver saldo
+              </button>
+            )}
           </>
         )}
       </div>
