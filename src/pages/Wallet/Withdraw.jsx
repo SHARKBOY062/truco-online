@@ -3,16 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-/**
- * 🔥 MAPEAMENTO CORRETO PARA PIXIONPAY
- */
-const PIX_TYPE_MAP = {
-  cpf: "CPF",
-  email: "EMAIL",
-  phone: "PHONE",
-  random: "EVP", // chave aleatória
-};
-
 const PIX_TYPES = [
   { value: "cpf", label: "CPF" },
   { value: "email", label: "E-mail" },
@@ -76,7 +66,7 @@ export default function Withdraw() {
         name,
         document: cpf.replace(/\D+/g, ""),
         pix_key: pixKey,
-        pix_type: PIX_TYPE_MAP[pixType], // 🔥 CORRETO
+        pix_type: pixType, // 🔥 SEM MAPEAR, SEM ALTERAR
       },
     };
 
@@ -109,7 +99,6 @@ export default function Withdraw() {
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[9999] px-4">
       <div className="w-full max-w-md bg-[#050505] border border-[#262626] rounded-2xl p-6 relative animate-fade-in shadow-[0_30px_90px_rgba(0,0,0,0.95)]">
 
-        {/* FECHAR */}
         <button
           onClick={() => navigate("/", { replace: true })}
           className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full
