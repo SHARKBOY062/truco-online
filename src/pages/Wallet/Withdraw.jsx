@@ -20,9 +20,7 @@ export default function Withdraw() {
   const [name, setName] = useState("");
   const [cpf, setCpf] = useState("");
 
-  const [externalId, setExternalId] = useState(null);
-  const [status, setStatus] = useState("form"); // form | pending
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   /* ================= USER ================= */
   useEffect(() => {
@@ -41,41 +39,7 @@ export default function Withdraw() {
       });
   }, []);
 
-  /* ================= POLLING ================= */
-  useEffect(() => {
-    if (!externalId || status !== "pending") return;
-
-    const i = setInterval(async () => {
-      const res = await fetch(`${API_URL}/transactions/${externalId}`, {
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      const data = await res.json();
-
-      if (data.status === "paid") {
-        setShowSuccess(true);
-
-        setTimeout(() => {
-          navigate("/");
-        }, 2500);
-
-        clearInterval(i);
-      }
-
-      if (data.status === "failed") {
-        alert("Saque falhou. O valor foi estornado.");
-        navigate("/");
-        clearInterval(i);
-      }
-    }, 4000);
-
-    return () => clearInterval(i);
-  }, [externalId, status, navigate]);
-
-  /* ================= FORMAT PIX KEY ================= */
+  /* ================= FORMAT PIX ================= */
   function handlePixKeyChange(value) {
     if (pixType === "cpf" || pixType === "phone") {
       setPixKey(value.replace(/\D+/g, ""));
@@ -93,6 +57,8 @@ export default function Withdraw() {
     if (!pixKey) {
       return alert("Informe a chave Pix");
     }
+
+    setLoading(true);
 
     const res = await fetch(`${API_URL}/withdraws/pix`, {
       method: "POST",
@@ -113,12 +79,19 @@ export default function Withdraw() {
     });
 
     const data = await res.json();
+
+    setLoading(false);
+
     if (!res.ok) {
       return alert(data.message || "Erro ao solicitar saque");
     }
 
-    setExternalId(data.external_id);
-    setStatus("pending");
+    /**
+     * ✅ FECHA POPUP IMEDIATAMENTE
+     * 📄 REDIRECIONA PARA EXTRATO
+     * ⏳ STATUS SERÁ ATUALIZADO PELO WEBHOOK
+     */
+    navigate("/wallet/transactions", { replace: true });
   }
 
   /* ================= UI ================= */
@@ -128,105 +101,82 @@ export default function Withdraw() {
 
         {/* FECHAR */}
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate(-1)}
           className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl"
-          disabled={status === "pending"}
+          disabled={loading}
         >
           ✕
         </button>
 
         <h2 className="text-2xl font-bold mb-4">Saque via Pix</h2>
 
-        {/* FORM */}
-        {status === "form" && (
-          <>
-            <input
-              disabled
-              value={cpf}
-              className="w-full mb-3 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm text-gray-400"
-            />
+        {/* CPF */}
+        <input
+          disabled
+          value={cpf}
+          className="w-full mb-3 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm text-gray-400"
+        />
 
-            <input
-              disabled
-              value={name}
-              className="w-full mb-4 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm text-gray-400"
-            />
+        {/* NOME */}
+        <input
+          disabled
+          value={name}
+          className="w-full mb-4 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm text-gray-400"
+        />
 
-            {/* TIPO DE CHAVE */}
-            <label className="text-xs text-gray-400 mb-1 block">
-              Tipo da chave Pix
-            </label>
+        {/* TIPO DE CHAVE */}
+        <label className="text-xs text-gray-400 mb-1 block">
+          Tipo da chave Pix
+        </label>
 
-            <select
-              value={pixType}
-              onChange={(e) => {
-                setPixType(e.target.value);
-                setPixKey("");
-              }}
-              className="w-full mb-3 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm"
-            >
-              {PIX_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
-                </option>
-              ))}
-            </select>
+        <select
+          value={pixType}
+          onChange={(e) => {
+            setPixType(e.target.value);
+            setPixKey("");
+          }}
+          className="w-full mb-3 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm"
+        >
+          {PIX_TYPES.map((t) => (
+            <option key={t.value} value={t.value}>
+              {t.label}
+            </option>
+          ))}
+        </select>
 
-            {/* CHAVE PIX */}
-            <input
-              placeholder={
-                pixType === "cpf"
-                  ? "CPF (somente números)"
-                  : pixType === "phone"
-                  ? "Telefone com DDD"
-                  : pixType === "email"
-                  ? "E-mail"
-                  : "Chave aleatória"
-              }
-              value={pixKey}
-              onChange={(e) => handlePixKeyChange(e.target.value)}
-              className="w-full mb-4 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm"
-            />
+        {/* CHAVE PIX */}
+        <input
+          placeholder={
+            pixType === "cpf"
+              ? "CPF (somente números)"
+              : pixType === "phone"
+              ? "Telefone com DDD"
+              : pixType === "email"
+              ? "E-mail"
+              : "Chave aleatória"
+          }
+          value={pixKey}
+          onChange={(e) => handlePixKeyChange(e.target.value)}
+          className="w-full mb-4 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm"
+        />
 
-            {/* VALOR */}
-            <input
-              type="number"
-              placeholder="Valor do saque"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="w-full mb-4 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm"
-            />
+        {/* VALOR */}
+        <input
+          type="number"
+          placeholder="Valor do saque"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="w-full mb-4 p-3 bg-[#090909] border border-[#262626] rounded-lg text-sm"
+        />
 
-            <button
-              onClick={handleWithdraw}
-              className="w-full bg-[#B90007] py-3 rounded-lg font-bold hover:bg-[#e01515] transition"
-            >
-              Solicitar saque
-            </button>
-          </>
-        )}
-
-        {/* PENDING */}
-        {status === "pending" && (
-          <p className="text-center text-gray-400 py-6">
-            Processando saque, aguarde...
-          </p>
-        )}
+        <button
+          onClick={handleWithdraw}
+          disabled={loading}
+          className="w-full bg-[#B90007] py-3 rounded-lg font-bold hover:bg-[#e01515] transition disabled:opacity-50"
+        >
+          {loading ? "Processando..." : "Solicitar saque"}
+        </button>
       </div>
-
-      {/* 🎉 SUCESSO */}
-      {showSuccess && (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[10000] animate-fade-in">
-          <div className="bg-[#050505] border border-[#262626] rounded-2xl p-8 text-center shadow-[0_0_40px_rgba(185,0,7,0.9)]">
-            <h2 className="text-3xl font-extrabold text-[#B90007] mb-2">
-              ✅ Saque realizado!
-            </h2>
-            <p className="text-gray-300">
-              O valor foi enviado com sucesso.
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

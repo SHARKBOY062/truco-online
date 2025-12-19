@@ -16,8 +16,6 @@ export default function Deposit() {
   const [externalId, setExternalId] = useState(null);
 
   const [timer, setTimer] = useState(900);
-  const [status, setStatus] = useState("pending");
-  const [showSuccess, setShowSuccess] = useState(false);
 
   const quickValues = [120, 240, 600];
 
@@ -40,50 +38,56 @@ export default function Deposit() {
 
   /* ================= TIMER ================= */
   useEffect(() => {
-    if (step !== 3 || timer <= 0 || status === "approved") return;
-    const i = setInterval(() => setTimer((t) => t - 1), 1000);
+    if (step !== 3 || timer <= 0) return;
+
+    const i = setInterval(() => {
+      setTimer((t) => t - 1);
+    }, 1000);
+
     return () => clearInterval(i);
-  }, [step, timer, status]);
+  }, [step, timer]);
 
   const minutes = String(Math.floor(timer / 60)).padStart(2, "0");
   const seconds = String(timer % 60).padStart(2, "0");
 
   /* ================= POLLING ================= */
   useEffect(() => {
-    if (!externalId || step !== 3 || status === "approved") return;
+    if (!externalId || step !== 3) return;
 
     const interval = setInterval(async () => {
-      const res = await fetch(`${API_URL}/transactions/${externalId}`, {
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      try {
+        const res = await fetch(
+          `${API_URL}/transactions/${externalId}`,
+          {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (data.status === "paid") {
-        setStatus("approved");
-        setShowSuccess(true);
+        if (data.status === "paid") {
+          clearInterval(interval);
 
-        // 🔊 SOM
-        new Audio("/sounds/success.mp3").play().catch(() => {});
+          // 🔊 som opcional
+          new Audio("/sounds/success.mp3").play().catch(() => {});
 
-        // ⏱️ FECHA POPUP E VOLTA PRA HOME
-        setTimeout(() => {
-          navigate("/");
-        }, 2500);
-
-        clearInterval(interval);
-      }
+          // 🚀 FECHA IMEDIATAMENTE E VOLTA PRO LOBBY
+          navigate("/", { replace: true });
+        }
+      } catch {}
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [externalId, step, status, navigate]);
+  }, [externalId, step, navigate]);
 
   /* ================= GERAR PIX ================= */
   async function handleDeposit() {
-    if (!amount || Number(amount) <= 0) return alert("Informe um valor válido");
+    if (!amount || Number(amount) <= 0) {
+      return alert("Informe um valor válido");
+    }
 
     const res = await fetch(`${API_URL}/deposits/pix`, {
       method: "POST",
@@ -103,12 +107,14 @@ export default function Deposit() {
     });
 
     const data = await res.json();
-    if (!res.ok) return alert(data.message || "Erro ao gerar Pix");
+    if (!res.ok) {
+      return alert(data.message || "Erro ao gerar Pix");
+    }
 
     setPixCode(data.pix.qr_code_text);
     setExternalId(data.external_id);
-    setStep(3);
     setTimer(900);
+    setStep(3);
   }
 
   /* ================= UI ================= */
@@ -118,9 +124,8 @@ export default function Deposit() {
 
         {/* FECHAR */}
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/", { replace: true })}
           className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl"
-          disabled={status === "approved"}
         >
           ✕
         </button>
@@ -128,10 +133,13 @@ export default function Deposit() {
         {/* STEP 1 */}
         {step === 1 && (
           <>
-            <h2 className="text-2xl font-bold mb-5">Escolha o método</h2>
+            <h2 className="text-2xl font-bold mb-5">
+              Escolha o método de pagamento
+            </h2>
+
             <button
               onClick={() => setStep(2)}
-              className="w-full bg-[#090909] border border-[#262626] rounded-xl px-4 py-4 flex justify-between items-center"
+              className="w-full bg-[#090909] border border-[#262626] rounded-xl px-4 py-4 flex justify-between items-center hover:border-[#B90007]"
             >
               <span>Pix</span>
               <i className="ri-qr-code-line text-xl" />
@@ -142,17 +150,28 @@ export default function Deposit() {
         {/* STEP 2 */}
         {step === 2 && (
           <>
-            <h2 className="text-2xl font-bold mb-4">Detalhes</h2>
+            <h2 className="text-2xl font-bold mb-4">
+              Detalhes do pagamento
+            </h2>
 
-            <input disabled value={cpf} className="w-full mb-3 p-3 bg-[#090909] border border-[#262626]" />
-            <input disabled value={name} className="w-full mb-4 p-3 bg-[#090909] border border-[#262626]" />
+            <input
+              disabled
+              value={cpf}
+              className="w-full bg-[#090909] border border-[#262626] rounded-lg px-4 py-3 mb-3 text-sm text-gray-400"
+            />
+
+            <input
+              disabled
+              value={name}
+              className="w-full bg-[#090909] border border-[#262626] rounded-lg px-4 py-3 mb-4 text-sm text-gray-400"
+            />
 
             <div className="flex gap-3 mb-4">
               {quickValues.map((v) => (
                 <button
                   key={v}
                   onClick={() => setAmount(v)}
-                  className={`flex-1 py-3 rounded-lg border ${
+                  className={`flex-1 py-3 rounded-lg border font-bold ${
                     Number(amount) === v
                       ? "bg-[#B90007] text-white border-[#B90007]"
                       : "bg-[#090909] border-[#262626]"
@@ -168,12 +187,12 @@ export default function Deposit() {
               placeholder="Outro valor"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full mb-4 p-3 bg-[#090909] border border-[#262626]"
+              className="w-full bg-[#090909] border border-[#262626] rounded-lg px-4 py-3 mb-4 text-sm"
             />
 
             <button
               onClick={handleDeposit}
-              className="w-full bg-[#B90007] py-3 rounded-lg font-bold"
+              className="w-full bg-[#B90007] text-white font-bold py-3 rounded-lg hover:bg-[#e01515]"
             >
               Gerar Pix
             </button>
@@ -181,7 +200,7 @@ export default function Deposit() {
         )}
 
         {/* STEP 3 */}
-        {step === 3 && status === "pending" && (
+        {step === 3 && (
           <>
             <h2 className="text-2xl font-bold text-center mb-2">
               Pague com Pix
@@ -203,20 +222,6 @@ export default function Deposit() {
           </>
         )}
       </div>
-
-      {/* 🎉 POPUP DE SUCESSO */}
-      {showSuccess && (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[10000] animate-fade-in">
-          <div className="bg-[#050505] border border-[#262626] rounded-2xl p-8 text-center">
-            <h2 className="text-3xl font-extrabold text-[#B90007] mb-2">
-              🎉 Parabéns!
-            </h2>
-            <p className="text-gray-300">
-              Seu depósito foi confirmado com sucesso.
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
