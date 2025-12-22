@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import PopupLogin from "../components/PopupLogin";
 import PopupRegister from "../components/PopupRegister";
@@ -11,9 +11,30 @@ export default function Header({ onMenuClick }) {
 
   const [showBalance, setShowBalance] = useState(true);
 
+  // ✅ saldo local para atualizar "na hora" via evento
+  const [liveBalance, setLiveBalance] = useState(user?.balance ?? 0);
+
   // POPUPS
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [showRegisterPopup, setShowRegisterPopup] = useState(false);
+
+  // ✅ sempre que o user do Auth mudar (login/logout/refresh), sincroniza
+  useEffect(() => {
+    if (typeof user?.balance !== "undefined") {
+      setLiveBalance(user.balance);
+    }
+  }, [user?.balance]);
+
+  // ✅ escuta evento disparado no Deposit.jsx (e também pode ser usado no Withdraw)
+  useEffect(() => {
+    function onBalanceUpdate(e) {
+      const b = Number(e?.detail?.balance ?? 0);
+      setLiveBalance(b);
+    }
+
+    window.addEventListener("balance:update", onBalanceUpdate);
+    return () => window.removeEventListener("balance:update", onBalanceUpdate);
+  }, []);
 
   return (
     <>
@@ -107,7 +128,7 @@ export default function Header({ onMenuClick }) {
               >
                 <span className="text-[11px] sm:text-sm font-semibold">
                   {showBalance
-                    ? `R$ ${Number(user.balance).toLocaleString("pt-BR", {
+                    ? `R$ ${Number(liveBalance).toLocaleString("pt-BR", {
                         minimumFractionDigits: 2,
                       })}`
                     : "••••••"}
